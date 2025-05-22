@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from 'framer-motion';
 import tsdlLogo from "../assets/tsdl_logo_4.png";
 import tuLogo from "../assets/TU_Logo.png";
-
+import logo from "../assets/vistar-logo.png"
 const Introduction = () => {
   const navigate = useNavigate();
 
@@ -54,17 +54,11 @@ const Introduction = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1 }}
           >
-            <h1 className="text-6xl md:text-7xl font-extrabold mb-4 tracking-tight drop-shadow-lg">
-              <span className="text-red-600">V</span>
-              <span className="text-blue-500">I</span>
-              <span className="text-purple-500">S</span>
-              <span className="text-yellow-600">T</span>
-              <span className="text-pink-600">A</span>
-              <span className="text-green-600">R</span>
-            </h1>
+            
+            <img src={logo} alt="logo" className="w-1/2 h-20 mx-auto mb-12 mt-12" />
             <h2 className="text-2xl md:text-3xl font-light text-gray-700 max-w-2xl mx-auto">
               <span className="bg-gradient-to-r from-cyan-500 to-blue-600 text-transparent bg-clip-text font-semibold">
-                Visual Insight for Segmented <span className=" text-gray-500 font-light">TCAD</span> Analysis for Research
+                Visual Insight for Segmented <span className=" text-black font-semibold">TCAD</span> Analysis for Research
               </span>
             </h2>
           </motion.div>
