@@ -22,11 +22,6 @@ function createWindow() {
     : 'http://localhost:5173';
 
   win.loadURL(startUrl);
-
-  // Open DevTools in development
-//   if (!app.isPackaged) {
-//     win.webContents.openDevTools();
-//   }
 }
 
 app.whenReady().then(createWindow);

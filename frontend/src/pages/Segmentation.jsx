@@ -158,7 +158,6 @@ const Segmentation = () => {
       formData.append("mask", maskBlob, "mask.png");
       formData.append("topValue", top);
       formData.append("bottomValue", bottom);
-      console.log("FormData: "+formData);
       
       // Add measurement dimensions if available
       if (currentSelectionSize.area > 0) {
@@ -192,8 +191,6 @@ const Segmentation = () => {
       setCompletedSteps(updatedCompletedSteps);
       setActiveStep("results");
     } catch (error) {
-      console.error("Error:", error);
-      console.log(error.response.data);
       alert("Error calculating average. Please try again.");
     } finally {
       setIsLoading(false);
