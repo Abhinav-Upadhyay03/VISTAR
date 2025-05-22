@@ -1,7 +1,8 @@
-import { Copy, CheckCircle } from "lucide-react"
+import { Copy, CheckCircle, Maximize2 } from "lucide-react"
 import { formatDate, formatScientific } from "../../utils/helperFunctions"
+import StatisticsPanel from "./statistics-panel"
 
-const ComparisonView = ({ compareResultsData, results, copyToClipboard, copiedValue }) => {
+const ComparisonView = ({ compareResultsData, results, copyToClipboard, copiedValue, onSelectResult }) => {
   if (compareResultsData.length !== 2) {
     return (
       <div className="bg-yellow-50 p-4 rounded-lg shadow-md mb-8 text-center">
@@ -15,64 +16,42 @@ const ComparisonView = ({ compareResultsData, results, copyToClipboard, copiedVa
   return (
     <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
       {compareResultsData.map((result, idx) => (
-        <div key={result.id} className="bg-white p-4 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">
+        <div key={result.id} className="bg-white p-4 rounded-lg shadow-md relative">
+          {/* Full Screen Button */}
+          <button
+            onClick={() => onSelectResult(result.id)}
+            className="absolute top-2 right-4 p-2 rounded-full hover:bg-gray-100 transition-colors"
+            title="View full result"
+          >
+            <Maximize2 size={20} className="text-gray-600" />
+          </button>
+
+          <h2 className="text-base font-semibold text-gray-800 mb-2 border-b pb-1">
             Result {results.indexOf(result) + 1} - {formatDate(result.timestamp)}
           </h2>
 
-          <div className="flex justify-center mb-4 ">
+          <div className="flex justify-center mb-2">
             {/* Segmented Image */}
-            <div className="border border-gray-200 rounded-lg overflow-hidden bg-gray-50">
+            <div className="border border-gray-200 rounded-lg overflow-hidden bg-gray-50" style={{ maxWidth: '180px', maxHeight: '90px' }}>
               {result.segmentedImage ? (
                 <img
                   src={result.segmentedImage || "/placeholder.svg"}
                   alt={`Segmented Image ${idx + 1}`}
-                  className="w-full h-48 object-contain"
+                  className="w-full h-24 object-contain"
                 />
               ) : (
-                <div className="text-center py-12 text-gray-500">No image available</div>
+                <div className="text-center py-6 text-gray-500 text-xs">No image available</div>
               )}
             </div>
           </div>
 
-          {/* Key Statistics */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-            <ComparisonStatCard
-              title="Average"
-              value={result.average}
-              color="green"
-              idx={idx}
-              copyToClipboard={copyToClipboard}
-              copiedValue={copiedValue}
-            />
-
-            <ComparisonStatCard
-              title="Mean"
-              value={result.stats?.mean}
-              color="blue"
-              idx={idx}
-              copyToClipboard={copyToClipboard}
-              copiedValue={copiedValue}
-            />
-
-            <ComparisonStatCard
-              title="Median"
-              value={result.stats?.median}
-              color="purple"
-              idx={idx}
-              copyToClipboard={copyToClipboard}
-              copiedValue={copiedValue}
-            />
-
-            <ComparisonStatCard
-              title="Mode"
-              value={result.stats?.mode}
-              color="yellow"
-              idx={idx}
-              copyToClipboard={copyToClipboard}
-              copiedValue={copiedValue}
-            />
-          </div>
+          {/* Compact Statistics Panel */}
+          <StatisticsPanel
+            selectedResultData={result}
+            copyToClipboard={copyToClipboard}
+            copiedValue={copiedValue}
+            compact={true}
+          />
         </div>
       ))}
     </div>
