@@ -26,7 +26,6 @@ const DeviceMeasurement = ({ image, onComplete, onCancel }) => {
         const croppedImage = await getCroppedImg(deviceImageRef.current, crop)
         setDeviceCroppedUrl(croppedImage)
       } catch (error) {
-        console.error("Error cropping device image:", error)
         alert("Error cropping device image. Please try again.")
       }
     }

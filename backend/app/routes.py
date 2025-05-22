@@ -52,7 +52,6 @@ def generate_comparison_graph(merged_csv_path, output_image_path):
 
         required_columns = ['Segment', 'R', 'G', 'B', 'Assigned_Value']
         if not all(col in df.columns for col in required_columns):
-            print("Required columns not found in CSV")
             return stats
 
         df_sorted = df.sort_values('Segment').reset_index(drop=True)
@@ -90,11 +89,9 @@ def generate_comparison_graph(merged_csv_path, output_image_path):
         plt.savefig(output_image_path)
         plt.close()
 
-        print(f"Graph saved at {output_image_path}")
         return stats
 
     except Exception as e:
-        print(f"Error generating graph: {e}")
         return stats
 
 
@@ -188,8 +185,7 @@ def calculate_average_route():
                                 total_area += pixel_count
                             except (IndexError, ValueError):
                                 continue
-            except Exception as e:
-                print(f"Error calculating total area: {str(e)}")
+            except Exception:
                 total_area = 1  # Fallback to avoid division by zero
 
             # Calculate the area under curve for each color
@@ -268,4 +264,4 @@ def calculate_average_route():
         return jsonify({'error': 'Invalid file type'}), 400
 
     except Exception as e:
-        return jsonify({'error': f'Error processing request: {str(e)}'}), 500
+        return jsonify({'error': str(e)}), 500

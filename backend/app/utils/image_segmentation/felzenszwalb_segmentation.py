@@ -133,27 +133,19 @@ def felzenszwalb_segmentation(input_image_path, scale, sigma, min_size, mask_pat
 
 def extract_segment_colors_and_areas(segments, image, mask=None):
     """
-    Extracts the mean color and area (pixel count) of each segment.
-    If a mask is provided, only processes segments that overlap with the mask.
-
-    Args:
-        segments (ndarray): Segmentation label array.
-        image (ndarray): Original image array.
-        mask (ndarray, optional): Binary mask where 255 indicates valid regions.
-
-    Returns:
-        dict: Dictionary containing segment colors and areas mapped to their IDs.
-    """
-    segment_ids = np.unique(segments)
-    segment_data = {}
-
-    # Ensure mask is strictly binary (0 or 255)
-    if mask is not None:
-        mask = (mask > 0).astype(np.uint8) * 255
-        total_pixels = np.sum(mask > 0)
-    else:
-        total_pixels = segments.size
+    Extracts colors and areas for each segment in the image.
     
+    Args:
+        segments (numpy.ndarray): The segmentation result
+        image (numpy.ndarray): The original image
+        mask (numpy.ndarray, optional): A mask to filter segments
+        
+    Returns:
+        dict: Dictionary containing segment colors and areas
+    """
+    segment_data = {}
+    segment_ids = np.unique(segments)
+    total_pixels = np.sum(mask > 0) if mask is not None else image.shape[0] * image.shape[1]
     bg_color = np.array([255, 0, 255])  # Magenta background
     
     for seg_id in segment_ids:
@@ -181,10 +173,6 @@ def extract_segment_colors_and_areas(segments, image, mask=None):
         if pixel_count == 0:
             continue
         
-        # Debug: Print pixel values for very small segments
-        if pixel_count < 10:
-            print(f"DEBUG: Segment {seg_id} has {pixel_count} pixels. Pixel values: {image[segment_mask]}")
-        
         # Calculate percentage of total area
         percentage_area = (pixel_count / total_pixels) * 100
         
@@ -193,7 +181,6 @@ def extract_segment_colors_and_areas(segments, image, mask=None):
         
         # Check for NaN in mean_color
         if np.isnan(mean_color).any():
-            print(f"WARNING: NaN mean for segment {seg_id}, skipping.")
             continue
         
         # Scale the color values to 0-255 range
@@ -206,22 +193,17 @@ def extract_segment_colors_and_areas(segments, image, mask=None):
         segment_pixels = image[segment_mask]
         try:
             if segment_pixels.size == 0:
-                print(f"INFO: Skipping segment {seg_id} as it has no pixels after masking.")
                 continue
             if segment_pixels.ndim == 1:
                 # Only one pixel in the segment
                 if segment_pixels.shape[0] == 3 and np.allclose(segment_pixels, bg_color, atol=10):
-                    print(f"INFO: Skipping segment {seg_id} as it is background (magenta or nearly magenta).")
                     continue
             elif segment_pixels.ndim == 2:
                 if np.all(np.isclose(segment_pixels, bg_color, atol=10).all(axis=1)):
-                    print(f"INFO: Skipping segment {seg_id} as it is background (magenta or nearly magenta).")
                     continue
             else:
-                print(f"WARNING: Unexpected segment_pixels shape {segment_pixels.shape} for segment {seg_id}, skipping.")
                 continue
-        except Exception as e:
-            print(f"ERROR: Exception for segment {seg_id}: {e}, shape: {segment_pixels.shape}, dtype: {segment_pixels.dtype}")
+        except Exception:
             continue
         
         # Store both color and area information
@@ -233,9 +215,6 @@ def extract_segment_colors_and_areas(segments, image, mask=None):
             'PercentageArea': percentage_area,
         }
 
-    # After the loop, print the total mask pixels and total segment pixels for debug
-    total_segment_pixels = sum([v['PixelCount'] for v in segment_data.values()])
-    print(f"Total mask pixels: {total_pixels}, total segment pixels: {total_segment_pixels}")
     return segment_data
 
 
@@ -257,6 +236,5 @@ def export_segment_data_to_csv(segment_data, output_csv_path):
     
     # Export the DataFrame to CSV
     df.to_csv(output_csv_path)
-    print(f"Segment data (colors and areas) have been exported to {output_csv_path}")
 
 
