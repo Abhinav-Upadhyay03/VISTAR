@@ -35,7 +35,7 @@ const SharedProgressHeader = ({ activeStep, completedSteps, onStepClick }) => {
   return (
     <header className="bg-white border-b border-gray-200 shadow-sm">
       <div className="container mx-auto px-4 py-4">
-        <h1 className="text-2xl font-bold text-gray-800">VISTA</h1>
+        <h1 className="text-2xl font-bold text-gray-800">VISTAR</h1>
         <div className="mt-4">
           <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
             <div

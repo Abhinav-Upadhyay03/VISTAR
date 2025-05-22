@@ -27,6 +27,7 @@ const Segmentation = () => {
 
   // Area selection state
   const [croppedImageUrl, setCroppedImageUrl] = useState(null);
+  const [maskImageUrl, setMaskImageUrl] = useState(null);
   const [currentSelectionSize, setCurrentSelectionSize] = useState({
     area: 0,
   });
@@ -69,6 +70,7 @@ const Segmentation = () => {
   const handleImageChange = (imageDataUrl) => {
     setImage(imageDataUrl);
     setCroppedImageUrl(null);
+    setMaskImageUrl(null);
     setDeviceImage(null);
     setDeviceWidth("");
     setDeviceHeight("");
@@ -94,8 +96,9 @@ const Segmentation = () => {
   };
 
   // Handle area selection completion
-  const handleAreaSelectionComplete = (croppedUrl, selectionSize) => {
+  const handleAreaSelectionComplete = (croppedUrl, selectionSize, maskUrl) => {
     setCroppedImageUrl(croppedUrl);
+    setMaskImageUrl(maskUrl);
     setCurrentSelectionSize(selectionSize);
     setActiveStep("colormap");
     setCompletedSteps({
@@ -108,6 +111,7 @@ const Segmentation = () => {
   const handleReset = () => {
     setImage(null);
     setCroppedImageUrl(null);
+    setMaskImageUrl(null);
     setDeviceImage(null);
     setDeviceWidth("");
     setDeviceHeight("");
@@ -139,20 +143,23 @@ const Segmentation = () => {
       alert("Top value must be greater than bottom value.");
       return;
     }
-    if (!croppedImageUrl) {
+    if (!croppedImageUrl || !maskImageUrl) {
       alert("Please crop an image first.");
       return;
     }
-
+    
     setIsLoading(true);
     try {
       const imageBlob = await base64ToBlob(croppedImageUrl);
+      const maskBlob = await base64ToBlob(maskImageUrl);
 
       const formData = new FormData();
       formData.append("image", imageBlob, "cropped-image.png");
+      formData.append("mask", maskBlob, "mask.png");
       formData.append("topValue", top);
       formData.append("bottomValue", bottom);
-
+      console.log("FormData: "+formData);
+      
       // Add measurement dimensions if available
       if (currentSelectionSize.area > 0) {
         formData.append("selectionArea", currentSelectionSize.area.toString());
@@ -186,6 +193,7 @@ const Segmentation = () => {
       setActiveStep("results");
     } catch (error) {
       console.error("Error:", error);
+      console.log(error.response.data);
       alert("Error calculating average. Please try again.");
     } finally {
       setIsLoading(false);

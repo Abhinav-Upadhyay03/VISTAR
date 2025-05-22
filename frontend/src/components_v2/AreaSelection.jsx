@@ -173,6 +173,8 @@ const AreaSelection = ({ image, deviceWidth, deviceHeight, onComplete, onBack })
     const maxY = Math.max(...points.map(p => p.y))
     const width = maxX - minX
     const height = maxY - minY
+
+    // Create canvas for the cropped image
     const tempCanvas = document.createElement('canvas')
     tempCanvas.width = width
     tempCanvas.height = height
@@ -189,7 +191,25 @@ const AreaSelection = ({ image, deviceWidth, deviceHeight, onComplete, onBack })
     tempCtx.drawImage(imageRef.current, 0, 0)
     tempCtx.restore()
     const croppedImageUrl = tempCanvas.toDataURL('image/png')
-    onComplete(croppedImageUrl, currentSelectionSize)
+
+    // Create canvas for the binary mask
+    const maskCanvas = document.createElement('canvas')
+    maskCanvas.width = width
+    maskCanvas.height = height
+    const maskCtx = maskCanvas.getContext('2d')
+    maskCtx.fillStyle = 'black'
+    maskCtx.fillRect(0, 0, width, height)
+    maskCtx.fillStyle = 'white'
+    maskCtx.beginPath()
+    maskCtx.moveTo(points[0].x - minX, points[0].y - minY)
+    for (let i = 1; i < points.length; i++) {
+      maskCtx.lineTo(points[i].x - minX, points[i].y - minY)
+    }
+    maskCtx.closePath()
+    maskCtx.fill()
+    const maskImageUrl = maskCanvas.toDataURL('image/png')
+
+    onComplete(croppedImageUrl, currentSelectionSize, maskImageUrl)
   }
 
   return (
