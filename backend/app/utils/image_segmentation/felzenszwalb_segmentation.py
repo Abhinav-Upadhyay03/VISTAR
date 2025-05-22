@@ -69,35 +69,39 @@ def find_optimal_felzenszwalb_params(input_image_path):
     return scale, sigma, min_size
 
 
-def felzenszwalb_segmentation(input_image_path, scale, sigma, min_size):
+def felzenszwalb_segmentation(input_image_path, scale, sigma, min_size, mask_path=None):
     """
     Applies Felzenszwalb segmentation on an input image, saves the segmented image with labels.
+    If mask_path is provided, only the masked region is segmented.
 
     Args:
         input_image_path (str): Path to the input image.
         scale (float): Scale parameter for segmentation.
         sigma (float): Sigma value for Gaussian smoothing.
         min_size (int): Minimum component size.
+        mask_path (str, optional): Path to the binary mask image.
 
     Returns:
         tuple: Segments array and segmented image.
     """
     # Load the input image
     image = io.imread(input_image_path)
+    mask = io.imread(mask_path)
+    if len(mask.shape) == 3:
+        mask = mask[..., 0]
+    mask = (mask > 0)
 
-    
-
-    if len(image.shape) == 3 and image.shape[2] == 4:
-        image = rgba2rgb(image)
-
-    if len(image.shape) == 2:
-        image = np.stack((image,) * 3, axis=-1)
-    
+    # Set pixels outside the mask to NaN (if float) or a unique color (if uint8)
+    if image.dtype == np.uint8:
+        unique_bg_color = np.array([255, 0, 255], dtype=np.uint8)
+        image[~mask] = unique_bg_color
+    else:
+        image = image.astype(np.float32)
+        image[~mask] = np.nan
 
     # Perform Felzenszwalb segmentation
     segments = segmentation.felzenszwalb(image, scale=scale, sigma=sigma, min_size=min_size)
     segments = reorder_segments_by_position(segments)
-
 
     # Create the segmented image
     segmented_image = color.label2rgb(segments, image=image, kind='avg')
@@ -127,13 +131,15 @@ def felzenszwalb_segmentation(input_image_path, scale, sigma, min_size):
     return segments, segmented_image
 
 
-def extract_segment_colors_and_areas(segments, image):
+def extract_segment_colors_and_areas(segments, image, mask=None):
     """
     Extracts the mean color and area (pixel count) of each segment.
+    If a mask is provided, only processes segments that overlap with the mask.
 
     Args:
         segments (ndarray): Segmentation label array.
         image (ndarray): Original image array.
+        mask (ndarray, optional): Binary mask where 255 indicates valid regions.
 
     Returns:
         dict: Dictionary containing segment colors and areas mapped to their IDs.
@@ -141,26 +147,82 @@ def extract_segment_colors_and_areas(segments, image):
     segment_ids = np.unique(segments)
     segment_data = {}
 
-    total_pixels = segments.size  # Total number of pixels in the image
+    # Ensure mask is strictly binary (0 or 255)
+    if mask is not None:
+        mask = (mask > 0).astype(np.uint8) * 255
+        total_pixels = np.sum(mask > 0)
+    else:
+        total_pixels = segments.size
+    
+    bg_color = np.array([255, 0, 255])  # Magenta background
     
     for seg_id in segment_ids:
         if seg_id < 0:  # Skip invalid segments if any
             continue
 
         # Create a mask for each segment
-        mask = segments == seg_id
+        segment_mask = segments == seg_id
+        
+        # If a mask is provided, only consider pixels that are in both the segment and the mask
+        if mask is not None:
+            mask_bool = mask > 0
+            if not np.any(np.logical_and(segment_mask, mask_bool)):
+                continue  # No overlap with mask
+            # Only keep if most pixels are inside the mask
+            inside_mask_count = np.sum(np.logical_and(segment_mask, mask_bool))
+            total_segment_count = np.sum(segment_mask)
+            if inside_mask_count / total_segment_count < 0.9:
+                continue  # Skip segments mostly outside the mask
         
         # Count the number of pixels in the segment (area)
-        pixel_count = np.sum(mask)
+        pixel_count = np.sum(segment_mask)
+        
+        # Skip segments with no pixels in the masked region
+        if pixel_count == 0:
+            continue
+        
+        # Debug: Print pixel values for very small segments
+        if pixel_count < 10:
+            print(f"DEBUG: Segment {seg_id} has {pixel_count} pixels. Pixel values: {image[segment_mask]}")
         
         # Calculate percentage of total area
         percentage_area = (pixel_count / total_pixels) * 100
         
         # Compute the mean color of the segment
-        mean_color = np.mean(image[mask], axis=0)
+        mean_color = np.mean(image[segment_mask], axis=0)
+        
+        # Check for NaN in mean_color
+        if np.isnan(mean_color).any():
+            print(f"WARNING: NaN mean for segment {seg_id}, skipping.")
+            continue
         
         # Scale the color values to 0-255 range
-        mean_color = np.clip(mean_color * 255, 0, 255).astype(int)
+        if image.dtype == np.float32 or image.dtype == np.float64:
+            mean_color = np.clip(mean_color * 255, 0, 255).astype(int)
+        else:
+            mean_color = np.clip(mean_color, 0, 255).astype(int)
+        
+        # Skip segments that are just background (magenta) or nearly magenta
+        segment_pixels = image[segment_mask]
+        try:
+            if segment_pixels.size == 0:
+                print(f"INFO: Skipping segment {seg_id} as it has no pixels after masking.")
+                continue
+            if segment_pixels.ndim == 1:
+                # Only one pixel in the segment
+                if segment_pixels.shape[0] == 3 and np.allclose(segment_pixels, bg_color, atol=10):
+                    print(f"INFO: Skipping segment {seg_id} as it is background (magenta or nearly magenta).")
+                    continue
+            elif segment_pixels.ndim == 2:
+                if np.all(np.isclose(segment_pixels, bg_color, atol=10).all(axis=1)):
+                    print(f"INFO: Skipping segment {seg_id} as it is background (magenta or nearly magenta).")
+                    continue
+            else:
+                print(f"WARNING: Unexpected segment_pixels shape {segment_pixels.shape} for segment {seg_id}, skipping.")
+                continue
+        except Exception as e:
+            print(f"ERROR: Exception for segment {seg_id}: {e}, shape: {segment_pixels.shape}, dtype: {segment_pixels.dtype}")
+            continue
         
         # Store both color and area information
         segment_data[seg_id] = {
@@ -171,6 +233,9 @@ def extract_segment_colors_and_areas(segments, image):
             'PercentageArea': percentage_area,
         }
 
+    # After the loop, print the total mask pixels and total segment pixels for debug
+    total_segment_pixels = sum([v['PixelCount'] for v in segment_data.values()])
+    print(f"Total mask pixels: {total_pixels}, total segment pixels: {total_segment_pixels}")
     return segment_data
 
 

@@ -4,9 +4,9 @@ from werkzeug.utils import secure_filename
 import matplotlib
 matplotlib.use('Agg') 
 import matplotlib.pyplot as plt
-
-import pandas as pd
+import cv2
 import numpy as np
+import pandas as pd
 from statistics import mode
 from app.utils.file_utils import allowed_file
 from app.utils.color_map.color_map_segmentation import process_color_map
@@ -18,6 +18,31 @@ from app.utils.wait_for_file import wait_for_file
 from app.utils.merge_csv import merge_csv_files
 
 api_bp = Blueprint('api', __name__)
+
+def apply_mask_to_image(image_path, mask_path):
+    """
+    Applies a binary mask to an image, setting pixels outside the mask to black.
+    
+    Args:
+        image_path (str): Path to the input image
+        mask_path (str): Path to the binary mask image
+        
+    Returns:
+        numpy.ndarray: Masked RGB image
+    """
+    # Read the images
+    image = cv2.imread(image_path, cv2.IMREAD_UNCHANGED)
+    mask = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
+    
+    # Convert RGBA to RGB if necessary
+    if image.shape[-1] == 4:
+        image = cv2.cvtColor(image, cv2.COLOR_RGBA2RGB)
+    
+    # Apply the mask
+    masked_image = image.copy()
+    masked_image[mask == 0] = [0, 0, 0]
+    
+    return masked_image
 
 def generate_comparison_graph(merged_csv_path, output_image_path):
     stats = {}  # Dictionary to return additional stats
@@ -76,21 +101,28 @@ def generate_comparison_graph(merged_csv_path, output_image_path):
 @api_bp.route('/calculate-average', methods=['POST'])
 def calculate_average_route():
     try:
-        if 'image' not in request.files:
-            return jsonify({'error': 'No image file found'}), 400
+        if 'image' not in request.files or 'mask' not in request.files:
+            return jsonify({'error': 'No image or mask file found'}), 400
 
         image_file = request.files['image']
-        if image_file.filename == '':
+        mask_file = request.files['mask']
+        
+        if image_file.filename == '' or mask_file.filename == '':
             return jsonify({'error': 'No selected file'}), 400
 
         top_value = float(request.form.get('topValue', 0))
         bottom_value = float(request.form.get('bottomValue', 0))
 
-        if allowed_file(image_file.filename):
+        if allowed_file(image_file.filename) and allowed_file(mask_file.filename):
             filename = secure_filename(image_file.filename)
+            mask_filename = secure_filename(mask_file.filename)
             upload_folder = current_app.config['UPLOAD_FOLDER']
-            filepath = os.path.join(upload_folder, filename)
-            image_file.save(filepath)
+            
+            # Save both files
+            image_path = os.path.join(upload_folder, filename)
+            mask_path = os.path.join(upload_folder, mask_filename)
+            image_file.save(image_path)
+            mask_file.save(mask_path)
 
             # Process color map
             csv_path_for_colorMap = process_color_map("app/static/assets/color_map_crop.jpg", upload_folder, top_value, bottom_value)
@@ -98,12 +130,23 @@ def calculate_average_route():
             # Wait for cropped image to be generated
             cropped_image_path = "app/static/temp_uploads/cropped-image.png"
             if wait_for_file(cropped_image_path):
-                scale, sigma, min_size = find_optimal_felzenszwalb_params(cropped_image_path)
-                segments, segmented_image = felzenszwalb_segmentation(cropped_image_path, scale, sigma, min_size)
+                # Apply mask to the image
+                masked_image = apply_mask_to_image(cropped_image_path, mask_path)
+                
+                # Save the masked image
+                masked_image_path = os.path.join(upload_folder, "masked_image.png")
+                cv2.imwrite(masked_image_path, masked_image)
+                
+                # Get optimal parameters and perform segmentation
+                scale, sigma, min_size = find_optimal_felzenszwalb_params(masked_image_path)
+                segments, segmented_image = felzenszwalb_segmentation(masked_image_path, scale, sigma, min_size, mask_path=mask_path)
             else:
                 return jsonify({'error': 'Cropped image not found'}), 500
 
-            segment_colors = extract_segment_colors_and_areas(segments, segmented_image)
+            # Extract colors and areas only for segments that overlap with the mask
+            mask = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
+            segment_colors = extract_segment_colors_and_areas(segments, segmented_image, mask)
+            
             csv_filename = f"{os.path.splitext(filename)[0]}_colors.csv"
             csv_path_for_image = os.path.join(upload_folder, csv_filename)
             export_segment_data_to_csv(segment_colors, csv_path_for_image)
