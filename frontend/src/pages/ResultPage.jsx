@@ -191,6 +191,7 @@ const ResultPage = ({ average, segmentedImage, graphImageUrl, stats, colorMapDat
                 results={results}
                 copyToClipboard={copyToClipboard}
                 copiedValue={copiedValue}
+                onSelectResult={selectResult}
               />
             )}
 
@@ -255,7 +256,5 @@ const ResultPage = ({ average, segmentedImage, graphImageUrl, stats, colorMapDat
     </div>
   )
 }
-
-
 
 export default ResultPage
