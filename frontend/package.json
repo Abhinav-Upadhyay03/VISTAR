@@ -1,5 +1,5 @@
 {
-  "name": "frontend",
+  "name": "vistar",
   "version": "0.1.0",
   "private": true,
   "main": "electron.js",
@@ -21,7 +21,8 @@
     "react-image-crop": "^11.0.7",
     "react-router-dom": "^6.28.0",
     "react-tooltip": "^5.28.1",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "electron-is-dev": "^3.0.1"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.3",
@@ -30,7 +31,6 @@
     "cross-env": "^7.0.3",
     "electron": "^36.2.1",
     "electron-builder": "^25.1.8",
-    "electron-is-dev": "^3.0.1",
     "eslint": "^9.13.0",
     "eslint-plugin-react": "^7.37.2",
     "eslint-plugin-react-hooks": "^5.0.0",
@@ -40,25 +40,33 @@
     "wait-on": "^7.2.0"
   },
   "build": {
-    "appId": "com.example.tsdl",
-    "productName": "TSDL Project",
+    "appId": "com.example.vistar",
+    "productName": "Vistar",
     "directories": {
       "output": "dist"
     },
     "files": [
       "dist/**/*",
       "electron.js",
-      "index.html",
       "package.json"
     ],
-    "win": {
-      "target": "nsis"
-    },
+    "extraResources": [
+      {
+        "from": "../backend/dist",
+        "to": "backend"
+      }
+    ],
     "mac": {
-      "target": "dmg"
+      "target": "dmg",
+      "icon": "build/icon.icns"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.ico"
     },
     "linux": {
-      "target": "AppImage"
+      "target": "AppImage",
+      "icon": "build"
     }
   }
 }
