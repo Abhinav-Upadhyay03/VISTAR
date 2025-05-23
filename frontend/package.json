@@ -1,5 +1,5 @@
 {
-  "name": "frontend",
+  "name": "vistar",
   "version": "0.1.0",
   "private": true,
   "main": "electron.js",
@@ -40,8 +40,8 @@
     "wait-on": "^7.2.0"
   },
   "build": {
-    "appId": "com.example.tsdl",
-    "productName": "TSDL Project",
+    "appId": "com.example.vistar",
+    "productName": "Vistar",
     "directories": {
       "output": "dist"
     },

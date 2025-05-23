@@ -265,3 +265,11 @@ def calculate_average_route():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/health', methods=['GET'])
+def health_check():
+    """Health check endpoint for Electron to verify backend is running"""
+    return jsonify({
+        'status': 'healthy',
+        'message': 'Backend is running'
+    }), 200
