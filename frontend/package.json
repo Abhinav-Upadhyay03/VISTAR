@@ -8,11 +8,14 @@
     "dev": "cross-env NODE_ENV=development concurrently \"vite\" \"npm:electron-dev\"",
     "electron-dev": "cross-env NODE_ENV=development wait-on http://localhost:5173 && electron .",
     "build": "cross-env NODE_ENV=production vite build && electron-builder",
-    "start": "electron ."
+    "start": "electron .",
+    "build-backend": "cd ../backend && python build.py",
+    "build-all": "npm run build-backend && npm run build"
   },
   "dependencies": {
     "axios": "^1.7.7",
     "dotenv": "^16.4.7",
+    "electron-log": "^5.4.0",
     "framer-motion": "^11.15.0",
     "lucide-react": "^0.510.0",
     "react": "^18.3.1",
@@ -51,11 +54,23 @@
       "index.html",
       "package.json"
     ],
+    "extraResources": [
+      {
+        "from": "../backend/dist/flask_backend",
+        "to": "flask_backend"
+      }
+    ],
     "win": {
-      "target": "nsis"
+      "target": [
+        "nsis",
+        "zip"
+      ]
     },
     "mac": {
-      "target": "dmg"
+      "target": [
+        "dmg",
+        "zip"
+      ]
     },
     "linux": {
       "target": "AppImage"
