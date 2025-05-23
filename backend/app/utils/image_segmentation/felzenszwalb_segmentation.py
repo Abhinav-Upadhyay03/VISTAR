@@ -4,7 +4,7 @@ import os
 from skimage import io, segmentation, color, transform
 from skimage.transform import resize
 from skimage.color import rgba2rgb
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 def reorder_segments_by_position(segments):
     """
@@ -107,26 +107,26 @@ def felzenszwalb_segmentation(input_image_path, scale, sigma, min_size, mask_pat
     segmented_image = color.label2rgb(segments, image=image, kind='avg')
 
     # Overlay segment IDs on the segmented image
-    fig, ax = plt.subplots(figsize=(10, 8))
-    ax.imshow(segmented_image)
+    # fig, ax = plt.subplots(figsize=(10, 8))
+    # ax.imshow(segmented_image)
 
-    unique_ids = np.unique(segments)
-    height = segments.shape[0]
+    # unique_ids = np.unique(segments)
+    # height = segments.shape[0]
 
-    for seg_id in unique_ids:
-        coords = np.column_stack(np.where(segments == seg_id))
-        y_mean, x_mean = coords.mean(axis=0)
-        ax.text(x_mean, y_mean, str(seg_id), color='red', fontsize=8,
-                ha='center', va='center', bbox=dict(facecolor='white', alpha=0.5, edgecolor='none'))
+    # for seg_id in unique_ids:
+    #     coords = np.column_stack(np.where(segments == seg_id))
+    #     y_mean, x_mean = coords.mean(axis=0)
+    #     ax.text(x_mean, y_mean, str(seg_id), color='red', fontsize=8,
+    #             ha='center', va='center', bbox=dict(facecolor='white', alpha=0.5, edgecolor='none'))
 
-    ax.set_title("Segmented Image with Labels")
-    ax.axis('off')
+    # ax.set_title("Segmented Image with Labels")
+    # ax.axis('off')
 
-    # Save the figure instead of the raw image
-    output_path = "app/static/temp_uploads/segmentedImage.png"
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    plt.savefig(output_path, bbox_inches='tight', pad_inches=0)
-    plt.close()
+    # # Save the figure instead of the raw image
+    # output_path = "app/static/temp_uploads/segmentedImage.png"
+    # os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    # plt.savefig(output_path, bbox_inches='tight', pad_inches=0)
+    # plt.close()
 
     return segments, segmented_image
 

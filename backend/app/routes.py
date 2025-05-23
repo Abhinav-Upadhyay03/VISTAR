@@ -1,9 +1,6 @@
 from flask import Blueprint, request, jsonify, current_app, url_for
 import os
 from werkzeug.utils import secure_filename
-import matplotlib
-matplotlib.use('Agg') 
-import matplotlib.pyplot as plt
 import cv2
 import numpy as np
 import pandas as pd
@@ -18,6 +15,11 @@ from app.utils.wait_for_file import wait_for_file
 from app.utils.merge_csv import merge_csv_files
 
 api_bp = Blueprint('api', __name__)
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+STATIC_DIR = os.path.join(BASE_DIR, 'static')
+TEMP_UPLOADS_DIR = os.path.join(STATIC_DIR, 'temp_uploads')
+ASSETS_DIR = os.path.join(STATIC_DIR, 'assets')
 
 def apply_mask_to_image(image_path, mask_path):
     """
@@ -69,25 +71,25 @@ def generate_comparison_graph(merged_csv_path, output_image_path):
             stats['mode'] = "No unique mode"
 
         # Plot
-        plt.figure(figsize=(20, 12))
-        x_vals = df_sorted['Segment']
-        plt.plot(x_vals, assigned_values, color='purple', marker='o', linestyle='-', label='Assigned Value')
+        # plt.figure(figsize=(20, 12))
+        # x_vals = df_sorted['Segment']
+        # plt.plot(x_vals, assigned_values, color='purple', marker='o', linestyle='-', label='Assigned Value')
 
-        # Add mean, median, mode lines
-        plt.axhline(stats['mean'], color='black', linestyle='--', linewidth=2, label=f'Mean: {stats["mean"]:.2f}')
-        plt.axhline(stats['median'], color='orange', linestyle='--', linewidth=2, label=f'Median: {stats["median"]:.2f}')
-        if isinstance(stats['mode'], (int, float)):
-            plt.axhline(stats['mode'], color='blue', linestyle='--', linewidth=2, label=f'Mode: {stats["mode"]:.2f}')
+        # # Add mean, median, mode lines
+        # plt.axhline(stats['mean'], color='black', linestyle='--', linewidth=2, label=f'Mean: {stats["mean"]:.2f}')
+        # plt.axhline(stats['median'], color='orange', linestyle='--', linewidth=2, label=f'Median: {stats["median"]:.2f}')
+        # if isinstance(stats['mode'], (int, float)):
+        #     plt.axhline(stats['mode'], color='blue', linestyle='--', linewidth=2, label=f'Mode: {stats["mode"]:.2f}')
 
-        plt.title('Assigned Value per Segment', fontsize=24)
-        plt.xlabel('Segment', fontsize=24)
-        plt.ylabel('Assigned Value', fontsize=24)
-        plt.xticks(fontsize=18)
-        plt.yticks(fontsize=18)
-        plt.legend(fontsize=18)
-        plt.tight_layout()
-        plt.savefig(output_image_path)
-        plt.close()
+        # plt.title('Assigned Value per Segment', fontsize=24)
+        # plt.xlabel('Segment', fontsize=24)
+        # plt.ylabel('Assigned Value', fontsize=24)
+        # plt.xticks(fontsize=18)
+        # plt.yticks(fontsize=18)
+        # plt.legend(fontsize=18)
+        # plt.tight_layout()
+        # plt.savefig(output_image_path)
+        # plt.close()
 
         return stats
 
@@ -122,10 +124,11 @@ def calculate_average_route():
             mask_file.save(mask_path)
 
             # Process color map
-            csv_path_for_colorMap = process_color_map("app/static/assets/color_map_crop.jpg", upload_folder, top_value, bottom_value)
+            color_map_path = os.path.join(ASSETS_DIR, 'color_map_crop.jpg')
+            csv_path_for_colorMap = process_color_map(color_map_path, upload_folder, top_value, bottom_value)
 
             # Wait for cropped image to be generated
-            cropped_image_path = "app/static/temp_uploads/cropped-image.png"
+            cropped_image_path = os.path.join(TEMP_UPLOADS_DIR, 'cropped-image.png')
             if wait_for_file(cropped_image_path):
                 # Apply mask to the image
                 masked_image = apply_mask_to_image(cropped_image_path, mask_path)
@@ -149,9 +152,9 @@ def calculate_average_route():
             export_segment_data_to_csv(segment_colors, csv_path_for_image)
 
             # Merge CSVs
-            file1 = 'app/static/temp_uploads/color_map_colors_with_values.csv'
-            file2 = 'app/static/temp_uploads/cropped-image_colors.csv'
-            output_path_merged_csv = 'app/static/temp_uploads/merged_file.csv'
+            file1 = os.path.join(TEMP_UPLOADS_DIR, 'color_map_colors_with_values.csv')
+            file2 = os.path.join(TEMP_UPLOADS_DIR, 'cropped-image_colors.csv')
+            output_path_merged_csv = os.path.join(TEMP_UPLOADS_DIR, 'merged_file.csv')
             try:
                 merged_file_path = merge_csv_files(file1, file2, output_path_merged_csv)
             except FileNotFoundError as e:
@@ -161,7 +164,7 @@ def calculate_average_route():
             average = calculate_average(output_path_merged_csv)
 
             # Generate graph
-            graph_output_path = 'app/static/temp_uploads/comparison_graph.png'
+            graph_output_path = os.path.join(TEMP_UPLOADS_DIR, 'comparison_graph.png')
             graph_stats = generate_comparison_graph(output_path_merged_csv, graph_output_path)
 
             # Prepare URLs
