@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { BrowserRouter as Router } from "react-router-dom"
 import AppRoutes from "./Routes"
 
-const SplashScreen = () => (
+const SplashScreen = ({ waitingTime }) => (
   <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
     {/* Enhanced loading spinner */}
     <div className="relative mb-12">
@@ -26,6 +26,11 @@ const SplashScreen = () => (
         </p>
         <p className="text-sm text-slate-500 font-medium">Estimated initialization time: 3-4 minutes</p>
         <p className="text-slate-500 italic">Thank you for your patience. Great things take time.</p>
+        {waitingTime > 0 && (
+          <p className="text-sm text-blue-600 font-medium">
+            Time elapsed: {Math.floor(waitingTime / 60)} minutes {waitingTime % 60} seconds
+          </p>
+        )}
       </div>
 
       {/* Manual download section */}
@@ -53,18 +58,24 @@ const SplashScreen = () => (
   </div>
 )
 
-const HEALTH_URL = `${import.meta.env.VITE_BACKEND_URL}/health`
-
 const App = () => {
   const [backendReady, setBackendReady] = useState(false)
   const [minTimeElapsed, setMinTimeElapsed] = useState(false)
+  const [backendPort, setBackendPort] = useState(5000)
+  const [waitingTime, setWaitingTime] = useState(0)
 
   useEffect(() => {
     let isMounted = true
     const checkBackend = async () => {
       try {
-        const res = await fetch(HEALTH_URL)
+        // Try the default port first
+        const res = await fetch(`http://127.0.0.1:${backendPort}/health`)
         if (res.ok && isMounted) {
+          const data = await res.json()
+          // Update the backend port if it's different
+          if (data.port && parseInt(data.port) !== backendPort) {
+            setBackendPort(parseInt(data.port))
+          }
           setBackendReady(true)
         } else if (isMounted) {
           setTimeout(checkBackend, 2000)
@@ -77,7 +88,7 @@ const App = () => {
     return () => {
       isMounted = false
     }
-  }, [])
+  }, [backendPort])
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -87,8 +98,21 @@ const App = () => {
     return () => clearTimeout(timer)
   }, [])
 
+  // Update waiting time
+  useEffect(() => {
+    if (!backendReady) {
+      const timer = setInterval(() => {
+        setWaitingTime(prev => prev + 1)
+      }, 1000)
+      return () => clearInterval(timer)
+    }
+  }, [backendReady])
+
   // Show splash screen until both conditions are met
-  if (!backendReady || !minTimeElapsed) return <SplashScreen />
+  if (!backendReady || !minTimeElapsed) return <SplashScreen waitingTime={waitingTime} />
+
+  // Set the backend URL in the window object for other components to use
+  window.BACKEND_URL = `http://127.0.0.1:${backendPort}`
 
   return (
     <Router>

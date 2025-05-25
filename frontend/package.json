@@ -1,21 +1,28 @@
 {
   "name": "vistar",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
+  "description": "Vistar - A modern image processing application",
+  "author": {
+    "name": "Abhinav Upadhyay"
+  },
   "main": "electron.js",
   "type": "module",
   "scripts": {
     "dev": "cross-env NODE_ENV=development concurrently \"vite\" \"npm:electron-dev\"",
     "electron-dev": "cross-env NODE_ENV=development wait-on http://localhost:5173 && electron .",
     "build": "cross-env NODE_ENV=production vite build && electron-builder",
+    "build:publish": "cross-env NODE_ENV=production vite build && electron-builder -p always",
     "start": "electron .",
     "build-backend": "cd ../backend && python build.py",
-    "build-all": "npm run build-backend && npm run build"
+    "build-all": "npm run build-backend && npm run build",
+    "clean": "rm -rf dist electron-dist"
   },
   "dependencies": {
     "axios": "^1.7.7",
     "dotenv": "^16.4.7",
     "electron-log": "^5.4.0",
+    "electron-updater": "^6.2.1",
     "framer-motion": "^11.15.0",
     "lucide-react": "^0.510.0",
     "react": "^18.3.1",
@@ -46,13 +53,27 @@
     "appId": "com.example.vistar",
     "productName": "Vistar",
     "directories": {
-      "output": "dist"
+      "output": "electron-dist"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "Abhinav-Upadhyay03",
+      "repo": "VISTAR"
     },
     "files": [
       "dist/**/*",
       "electron.js",
       "index.html",
-      "package.json"
+      "package.json",
+      "!dist/mac-arm64/**/*",
+      "!dist/win-unpacked/**/*",
+      "!dist/linux-unpacked/**/*",
+      "!dist/*.dmg",
+      "!dist/*.zip",
+      "!dist/*.exe",
+      "!dist/*.AppImage",
+      "!dist/*.blockmap",
+      "!dist/builder-effective-config.yaml"
     ],
     "extraResources": [
       {
@@ -64,16 +85,19 @@
       "target": [
         "nsis",
         "zip"
-      ]
+      ],
+      "icon": "icons/icon.ico"
     },
     "mac": {
       "target": [
         "dmg",
         "zip"
-      ]
+      ],
+      "icon": "icons/icon.icns"
     },
     "linux": {
-      "target": "AppImage"
+      "target": "AppImage",
+      "icon": "icons/icon.png"
     }
   }
 }

@@ -274,5 +274,6 @@ def health_check():
     """Health check endpoint for Electron to verify backend is running"""
     return jsonify({
         'status': 'healthy',
-        'message': 'Backend is running'
+        'message': 'Backend is running',
+        'port': request.environ.get('SERVER_PORT', '5000')
     }), 200
