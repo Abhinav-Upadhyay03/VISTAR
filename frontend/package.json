@@ -14,7 +14,7 @@
     "build": "cross-env NODE_ENV=production vite build && electron-builder",
     "build:publish": "cross-env NODE_ENV=production vite build && electron-builder -p always",
     "start": "electron .",
-    "build-backend": "cd ../backend && python build.py",
+    "build-backend": "cd ../backend && python -m pip install pyinstaller && python build.py",
     "build-all": "npm run build-backend && npm run build",
     "clean": "rm -rf dist electron-dist"
   },
