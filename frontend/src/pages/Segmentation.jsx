@@ -164,7 +164,7 @@ const Segmentation = () => {
         formData.append("selectionArea", currentSelectionSize.area.toString());
       }
 
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || "";
+      const backendUrl = window.BACKEND_URL || "http://127.0.0.1:5000";
 
       const response = await axios.post(`${backendUrl}/calculate-average`, formData, {
         headers: {

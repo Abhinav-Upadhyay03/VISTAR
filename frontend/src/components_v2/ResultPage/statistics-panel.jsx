@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { Info, X, Copy, CheckCircle } from "lucide-react"
 import { formatScientific } from "../../utils/helperFunctions"
+import { colorClassMap } from "../../utils/colorConstants"
 
 const StatisticsPanel = ({ selectedResultData, copyToClipboard, copiedValue, compact = false }) => {
   const [isOpen, setIsOpen] = useState(false)
@@ -165,8 +166,9 @@ const StatisticCard = ({
   formatValue = formatScientific,
   compact = false,
 }) => {
+  const colorClasses = colorClassMap[color] || colorClassMap.gray;
   return (
-    <div className={compact ? `bg-gray-50 p-2 rounded shadow-sm border-l-4 border-${color}-500 overflow-hidden` : `bg-gray-50 p-4 rounded-lg shadow-sm border-l-4 border-${color}-500 overflow-hidden`}>
+    <div className={compact ? `bg-gray-50 p-2 rounded shadow-sm border-l-4 ${colorClasses.border} overflow-hidden` : `bg-gray-50 p-4 rounded-lg shadow-sm border-l-4 ${colorClasses.border} overflow-hidden`}>
       <div className="flex justify-between">
         <h3 className={compact ? "text-xs font-semibold text-gray-700 mb-0.5" : "text-lg font-semibold text-gray-700 mb-1"}>{title}</h3>
         <div className="flex items-center">
@@ -178,10 +180,10 @@ const StatisticCard = ({
           {value !== undefined && (
             <button
               onClick={() => copyToClipboard(value, fieldName)}
-              className={compact ? `p-0.5 rounded-full hover:bg-${color}-100` : `p-1 rounded-full hover:bg-${color}-100`}
+              className={`${compact ? "p-0.5 rounded-full" : "p-1 rounded-full"} ${colorClasses.hover}`}
               aria-label="Copy value"
             >
-              <Copy size={compact ? 12 : 16} className={copiedValue === fieldName ? `text-${color}-500` : "text-gray-500"} />
+              <Copy size={compact ? 12 : 16} className={copiedValue === fieldName ? colorClasses.text : "text-gray-500"} />
             </button>
           )}
         </div>
@@ -189,7 +191,7 @@ const StatisticCard = ({
       {value !== undefined ? (
         <div className="flex items-center">
           <div
-            className={compact ? `text-base font-bold text-${color}-600 overflow-hidden whitespace-nowrap text-ellipsis mr-1` : `text-2xl font-bold text-${color}-600 overflow-hidden whitespace-nowrap text-ellipsis mr-2`}
+            className={`${compact ? "text-base font-bold" : "text-2xl font-bold"} ${colorClasses.text} overflow-hidden whitespace-nowrap text-ellipsis mr-1`}
             data-tooltip-id="value-tooltip"
             data-tooltip-content={value}
           >

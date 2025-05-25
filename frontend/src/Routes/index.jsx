@@ -9,9 +9,8 @@ const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<Introduction />} />
-      <Route path="/instruction" element={<LandingPage />} />
       <Route path="/select-image" element={<Segmentation />} />
-      <Route path="*" element={<ErrorPage />} />
+      <Route path="*" element={<Introduction />} />
     </Routes>
   );
 };

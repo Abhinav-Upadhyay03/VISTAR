@@ -133,6 +133,7 @@ const DeviceMeasurement = ({ image, onComplete, onCancel }) => {
                     Value Input Format
                   </h4>
                   <button
+                  tabIndex={-1}
                     onClick={toggleInfoBox}
                     className="p-1 rounded-full hover:bg-gray-200 text-gray-600 transition-colors"
                     data-tooltip-id="format-tooltip"
@@ -175,6 +176,7 @@ const DeviceMeasurement = ({ image, onComplete, onCancel }) => {
                   <label htmlFor="deviceWidth" className="block text-sm font-medium text-gray-700 flex items-center gap-2">
                     Object Lateral:
                     <button
+                      tabIndex={-1}
                       className="p-1 rounded-full hover:bg-gray-100 text-gray-600 transition-colors"
                       data-tooltip-id="width-tooltip"
                       data-tooltip-content="Enter width in meters"
@@ -207,6 +209,7 @@ const DeviceMeasurement = ({ image, onComplete, onCancel }) => {
                   <label htmlFor="deviceHeight" className="block text-sm font-medium text-gray-700 flex items-center gap-2">
                     Object Vertical:
                     <button
+                      tabIndex={-1}
                       className="p-1 rounded-full hover:bg-gray-100 text-gray-600 transition-colors"
                       data-tooltip-id="height-tooltip"
                       data-tooltip-content="Enter height in meters"
