@@ -1,0 +1,106 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.8'
+          
+      - name: Install Windows Build Tools
+        run: |
+          npm install --global --production windows-build-tools
+          
+      - name: Install Dependencies
+        run: |
+          cd frontend
+          npm install
+          cd ../backend
+          python -m venv venv
+          .\venv\Scripts\activate
+          pip install -r requirements.txt
+          
+      - name: Build Application
+        run: |
+          cd frontend
+          npm run build-all
+          
+      - name: Upload Windows Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-dist
+          path: frontend/electron-dist/*.exe
+          
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.8'
+          
+      - name: Install Dependencies
+        run: |
+          cd frontend
+          npm install
+          cd ../backend
+          python -m venv venv
+          source venv/bin/activate
+          pip install -r requirements.txt
+          
+      - name: Build Application
+        run: |
+          cd frontend
+          npm run build-all
+          
+      - name: Upload Linux Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-dist
+          path: frontend/electron-dist/*.AppImage
+          
+  release:
+    needs: [build-windows, build-linux]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Windows Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-dist
+          path: windows-dist
+          
+      - name: Download Linux Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-dist
+          path: linux-dist
+          
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            windows-dist/*.exe
+            linux-dist/*.AppImage
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
