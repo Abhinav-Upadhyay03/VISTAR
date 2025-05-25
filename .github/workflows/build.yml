@@ -14,16 +14,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.8'
-          
-      - name: Install Windows Build Tools
-        run: |
-          npm install --global --production windows-build-tools
+          python-version: '3.9'
           
       - name: Install Dependencies
         run: |
@@ -32,6 +28,7 @@ jobs:
           cd ../backend
           python -m venv venv
           .\venv\Scripts\activate
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
           
       - name: Build Application
@@ -53,12 +50,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.8'
+          python-version: '3.9'
           
       - name: Install Dependencies
         run: |
@@ -67,6 +64,7 @@ jobs:
           cd ../backend
           python -m venv venv
           source venv/bin/activate
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
           
       - name: Build Application
