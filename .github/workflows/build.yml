@@ -15,19 +15,29 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
           
-      - name: Setup Python
+      - name: Setup Python 3.10
         uses: actions/setup-python@v5
         with:
-          python-version: '3.9'
+          python-version: '3.10.12'
+          cache: 'pip'
           
-      - name: Install Dependencies
+      - name: Verify Python Version
+        run: |
+          python --version
+          
+      - name: Install Frontend Dependencies
         run: |
           cd frontend
-          npm install
-          cd ../backend
+          npm ci --no-audit --no-fund
+          
+      - name: Install Backend Dependencies
+        run: |
+          cd backend
           python -m venv venv
           .\venv\Scripts\activate
+          python --version
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           
@@ -51,19 +61,29 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
           
-      - name: Setup Python
+      - name: Setup Python 3.10
         uses: actions/setup-python@v5
         with:
-          python-version: '3.9'
+          python-version: '3.10.12'
+          cache: 'pip'
           
-      - name: Install Dependencies
+      - name: Verify Python Version
+        run: |
+          python --version
+          
+      - name: Install Frontend Dependencies
         run: |
           cd frontend
-          npm install
-          cd ../backend
+          npm ci --no-audit --no-fund
+          
+      - name: Install Backend Dependencies
+        run: |
+          cd backend
           python -m venv venv
           source venv/bin/activate
+          python --version
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           
