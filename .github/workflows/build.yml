@@ -47,6 +47,8 @@ jobs:
         run: |
           cd frontend
           npm run build-all
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
       - name: Upload Windows Artifacts
         uses: actions/upload-artifact@v4
@@ -95,6 +97,8 @@ jobs:
         run: |
           cd frontend
           npm run build-all
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
       - name: Upload Linux Artifacts
         uses: actions/upload-artifact@v4
