@@ -275,5 +275,5 @@ def health_check():
     return jsonify({
         'status': 'healthy',
         'message': 'Backend is running',
-        'port': request.environ.get('SERVER_PORT', '5000')
+        'port': request.environ.get('SERVER_PORT', '5001')
     }), 200
