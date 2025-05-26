@@ -68,10 +68,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: windows-dist
-          path: |
-            frontend/electron-dist/*.exe
-            frontend/electron-dist/win-unpacked/*.exe
-            frontend/electron-dist/Vistar-Setup.exe
+          path: frontend/electron-dist/Vistar-Setup.exe
           
   build-linux:
     runs-on: ubuntu-latest

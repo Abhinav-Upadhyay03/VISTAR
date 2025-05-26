@@ -84,7 +84,8 @@
           "from": "../backend/dist/flask_backend",
           "to": "flask_backend"
         }
-      ]
+      ],
+      "artifactName": "Vistar-Setup.exe"
     },
     "mac": {
       "target": [
