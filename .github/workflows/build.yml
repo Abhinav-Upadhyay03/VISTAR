@@ -53,11 +53,18 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
+      - name: List Build Output
+        run: |
+          dir frontend\electron-dist
+          dir frontend\electron-dist\win-unpacked
+          
       - name: Upload Windows Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: windows-dist
-          path: frontend/electron-dist/*.exe
+          path: |
+            frontend/electron-dist/*.exe
+            frontend/electron-dist/win-unpacked/*.exe
           
   build-linux:
     runs-on: ubuntu-latest
@@ -103,6 +110,10 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
+      - name: List Build Output
+        run: |
+          ls -la frontend/electron-dist
+          
       - name: Upload Linux Artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -125,6 +136,13 @@ jobs:
           name: linux-dist
           path: linux-dist
           
+      - name: List Downloaded Artifacts
+        run: |
+          echo "Windows artifacts:"
+          ls -la windows-dist
+          echo "Linux artifacts:"
+          ls -la linux-dist
+          
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -142,7 +160,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./windows-dist/*.exe
+          asset_path: windows-dist/*.exe
           asset_name: Vistar-Setup.exe
           asset_content_type: application/octet-stream
           
@@ -152,6 +170,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./linux-dist/*.AppImage
+          asset_path: linux-dist/*.AppImage
           asset_name: Vistar.AppImage
           asset_content_type: application/octet-stream 
