@@ -21,15 +21,30 @@ args = [
     '--add-data=requirements.txt:.',
     '--add-data=app:app',
     '--add-data=app/static/assets/color_map_crop.jpg:app/static/assets',
+    # Essential imports
     '--hidden-import=flask',
     '--hidden-import=flask_cors',
     '--hidden-import=numpy',
     '--hidden-import=pandas',
     '--hidden-import=scipy',
-    '--hidden-import=opencv-python',
+    '--hidden-import=cv2',
     '--hidden-import=networkx',
-    '--hidden-import=scikit-image',
+    '--hidden-import=skimage',
+    # Additional imports that might be needed
+    '--hidden-import=werkzeug',
+    '--hidden-import=jinja2',
+    '--hidden-import=itsdangerous',
+    '--hidden-import=click',
+    '--hidden-import=blinker',
+    '--hidden-import=sklearn',
+    '--hidden-import=sklearn.utils',
+    '--hidden-import=sklearn.utils._typedefs',
+    # Windows-specific settings
+    '--runtime-hook=windows_hook.py' if sys.platform == 'win32' else None,
 ]
+
+# Remove None values from args
+args = [arg for arg in args if arg is not None]
 
 # Run PyInstaller
 PyInstaller.__main__.run(args) 
