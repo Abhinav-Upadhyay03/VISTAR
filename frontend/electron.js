@@ -46,6 +46,9 @@ function startFlaskBackend() {
   let args = [];
   if (app.isPackaged) {
     flaskPath = path.join(process.resourcesPath, 'flask_backend');
+    if (process.platform === 'win32') {
+      flaskPath = `${flaskPath}.exe`;
+    }
     logToFile(`Production mode: Starting backend from ${flaskPath}`);
   } else {
     flaskPath = path.join(__dirname, '..', 'backend', 'run.py');
@@ -54,32 +57,44 @@ function startFlaskBackend() {
   }
 
   try {
+    // Check if the backend executable exists
+    if (app.isPackaged && !fs.existsSync(flaskPath)) {
+      const error = `Backend executable not found at ${flaskPath}`;
+      logToFile(error);
+      throw new Error(error);
+    }
+
     flaskProcess = app.isPackaged
-      ? spawn(flaskPath)
+      ? spawn(flaskPath, [], { windowsHide: false })
       : spawn('python3', args);
 
     flaskProcess.stdout.on('data', (data) => {
-      logToFile(`Flask stdout: ${data}`);
-      console.log(`Flask stdout: ${data}`);
+      const message = data.toString();
+      logToFile(`Flask stdout: ${message}`);
+      console.log(`Flask stdout: ${message}`);
     });
 
     flaskProcess.stderr.on('data', (data) => {
-      logToFile(`Flask stderr: ${data}`);
-      console.error(`Flask stderr: ${data}`);
+      const message = data.toString();
+      logToFile(`Flask stderr: ${message}`);
+      console.error(`Flask stderr: ${message}`);
     });
 
     flaskProcess.on('close', (code) => {
-      logToFile(`Flask process exited with code ${code}`);
-      console.log(`Flask process exited with code ${code}`);
+      const message = `Flask process exited with code ${code}`;
+      logToFile(message);
+      console.log(message);
     });
 
     flaskProcess.on('error', (err) => {
-      logToFile(`Flask process error: ${err}`);
-      console.error(`Flask process error: ${err}`);
+      const message = `Flask process error: ${err}`;
+      logToFile(message);
+      console.error(message);
     });
   } catch (err) {
-    logToFile(`Failed to start Flask backend: ${err}`);
-    console.error(`Failed to start Flask backend: ${err}`);
+    const message = `Failed to start Flask backend: ${err}`;
+    logToFile(message);
+    console.error(message);
   }
 }
 
