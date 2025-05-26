@@ -65,15 +65,7 @@
       "electron.js",
       "index.html",
       "package.json",
-      "!dist/mac-arm64/**/*",
-      "!dist/win-unpacked/**/*",
-      "!dist/linux-unpacked/**/*",
-      "!dist/*.dmg",
-      "!dist/*.zip",
-      "!dist/*.exe",
-      "!dist/*.AppImage",
-      "!dist/*.blockmap",
-      "!dist/builder-effective-config.yaml"
+      "icons/**/*"
     ],
     "extraResources": [
       {
@@ -86,7 +78,13 @@
         "nsis",
         "zip"
       ],
-      "icon": "icons/icon.ico"
+      "icon": "icons/icon.ico",
+      "extraResources": [
+        {
+          "from": "../backend/dist/flask_backend",
+          "to": "flask_backend"
+        }
+      ]
     },
     "mac": {
       "target": [
@@ -98,6 +96,10 @@
     "linux": {
       "target": "AppImage",
       "icon": "icons/icon.png"
-    }
+    },
+    "asar": true,
+    "asarUnpack": [
+      "flask_backend/**/*"
+    ]
   }
 }

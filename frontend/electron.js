@@ -44,30 +44,48 @@ function logToFile(message) {
 function startFlaskBackend() {
   let flaskPath;
   let args = [];
-  if (app.isPackaged) {
-    flaskPath = path.join(process.resourcesPath, 'flask_backend');
-    if (process.platform === 'win32') {
-      flaskPath = `${flaskPath}.exe`;
-    }
-    logToFile(`Production mode: Starting backend from ${flaskPath}`);
-  } else {
-    flaskPath = path.join(__dirname, '..', 'backend', 'run.py');
-    args = [flaskPath];
-    logToFile(`Dev mode: Starting backend with python ${flaskPath}`);
-  }
-
+  
   try {
-    // Check if the backend executable exists
-    if (app.isPackaged && !fs.existsSync(flaskPath)) {
-      const error = `Backend executable not found at ${flaskPath}`;
-      logToFile(error);
-      throw new Error(error);
+    if (app.isPackaged) {
+      // In production, look for the backend in the resources directory
+      flaskPath = path.join(process.resourcesPath, 'flask_backend');
+      if (process.platform === 'win32') {
+        flaskPath = `${flaskPath}.exe`;
+      }
+      logToFile(`Production mode: Starting backend from ${flaskPath}`);
+      
+      // Verify the backend exists
+      if (!fs.existsSync(flaskPath)) {
+        throw new Error(`Backend executable not found at ${flaskPath}`);
+      }
+      
+      // Set working directory to the backend directory
+      const workingDir = path.dirname(flaskPath);
+      logToFile(`Setting working directory to: ${workingDir}`);
+      
+      flaskProcess = spawn(flaskPath, [], {
+        windowsHide: false,
+        cwd: workingDir,
+        env: {
+          ...process.env,
+          PYTHONPATH: workingDir
+        }
+      });
+    } else {
+      // In development, use Python directly
+      flaskPath = path.join(__dirname, '..', 'backend', 'run.py');
+      args = [flaskPath];
+      logToFile(`Dev mode: Starting backend with python ${flaskPath}`);
+      
+      flaskProcess = spawn('python3', args, {
+        env: {
+          ...process.env,
+          PYTHONPATH: path.join(__dirname, '..', 'backend')
+        }
+      });
     }
 
-    flaskProcess = app.isPackaged
-      ? spawn(flaskPath, [], { windowsHide: false })
-      : spawn('python3', args);
-
+    // Handle process output
     flaskProcess.stdout.on('data', (data) => {
       const message = data.toString();
       logToFile(`Flask stdout: ${message}`);
@@ -84,6 +102,12 @@ function startFlaskBackend() {
       const message = `Flask process exited with code ${code}`;
       logToFile(message);
       console.log(message);
+      
+      // If the process exits unexpectedly, try to restart it
+      if (code !== 0 && !app.isQuitting) {
+        logToFile('Attempting to restart backend...');
+        setTimeout(startFlaskBackend, 1000);
+      }
     });
 
     flaskProcess.on('error', (err) => {
@@ -95,6 +119,12 @@ function startFlaskBackend() {
     const message = `Failed to start Flask backend: ${err}`;
     logToFile(message);
     console.error(message);
+    
+    // Show error to user
+    showNotification(
+      'Backend Error',
+      'Failed to start the backend service. Please check the logs for details.'
+    );
   }
 }
 
@@ -176,12 +206,16 @@ autoUpdater.on('update-downloaded', (info) => {
   );
 });
 
+// Track if app is quitting
+app.isQuitting = false;
+
 app.whenReady().then(() => {
   startFlaskBackend();
   createWindow();
 });
 
 app.on('window-all-closed', () => {
+  app.isQuitting = true;
   if (flaskProcess) {
     flaskProcess.kill();
     logToFile('Flask process killed on window-all-closed');

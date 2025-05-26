@@ -53,9 +53,15 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
-      - name: List Build Output
+      - name: Debug Build Output
         run: |
+          echo "Current directory:"
+          pwd
+          echo "Listing frontend directory:"
+          dir frontend
+          echo "Listing electron-dist directory:"
           dir frontend\electron-dist
+          echo "Listing win-unpacked directory:"
           dir frontend\electron-dist\win-unpacked
           
       - name: Upload Windows Artifacts
@@ -65,6 +71,7 @@ jobs:
           path: |
             frontend/electron-dist/*.exe
             frontend/electron-dist/win-unpacked/*.exe
+            frontend/electron-dist/Vistar-Setup.exe
           
   build-linux:
     runs-on: ubuntu-latest
@@ -110,8 +117,13 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
-      - name: List Build Output
+      - name: Debug Build Output
         run: |
+          echo "Current directory:"
+          pwd
+          echo "Listing frontend directory:"
+          ls -la frontend
+          echo "Listing electron-dist directory:"
           ls -la frontend/electron-dist
           
       - name: Upload Linux Artifacts
@@ -136,11 +148,13 @@ jobs:
           name: linux-dist
           path: linux-dist
           
-      - name: List Downloaded Artifacts
+      - name: Debug Downloaded Artifacts
         run: |
-          echo "Windows artifacts:"
+          echo "Current directory:"
+          pwd
+          echo "Windows artifacts directory contents:"
           ls -la windows-dist
-          echo "Linux artifacts:"
+          echo "Linux artifacts directory contents:"
           ls -la linux-dist
           
       - name: Create Release
@@ -160,7 +174,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: windows-dist/*.exe
+          asset_path: windows-dist/Vistar-Setup.exe
           asset_name: Vistar-Setup.exe
           asset_content_type: application/octet-stream
           
