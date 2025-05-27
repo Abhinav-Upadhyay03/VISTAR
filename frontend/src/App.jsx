@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { BrowserRouter as Router } from "react-router-dom"
+import { HashRouter as Router } from "react-router-dom"
 import AppRoutes from "./Routes"
 
 const SplashScreen = ({ waitingTime }) => (

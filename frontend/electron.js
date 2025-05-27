@@ -129,6 +129,14 @@ function createWindow() {
 
   win.loadURL(startUrl);
 
+  // Handle navigation events for client-side routing
+  win.webContents.on('will-navigate', (event, url) => {
+    event.preventDefault();
+    // Extract the path from the URL and update the hash
+    const pathname = new URL(url).pathname;
+    win.loadURL(`${startUrl}#${pathname}`);
+  });
+
   // Check for updates on startup and every hour
   if (app.isPackaged) {
     autoUpdater.checkForUpdates();
