@@ -2,17 +2,16 @@
 
 
 a = Analysis(
-    ['/Users/abhinavupadhyay/personal/Vistar/backend/run.py'],
+    ['C:\\Users\\arnav\\VISTAR\\backend\\run.py'],
     pathex=[],
     binaries=[],
-    datas=[('requirements.txt', '.'), ('app', 'app'), ('app/static/assets/color_map_crop.jpg', 'app/static/assets')],
-    hiddenimports=['flask', 'flask_cors', 'numpy', 'pandas', 'scipy', 'opencv-python', 'networkx', 'scikit-image'],
-    hookspath=[],
+    datas=[('C:\\Users\\arnav\\VISTAR\\backend\\requirements.txt', '.'), ('C:\\Users\\arnav\\VISTAR\\backend\\app', 'app'), ('C:\\Users\\arnav\\VISTAR\\backend\\app/static/assets/color_map_crop.jpg', 'app/static/assets')],
+    hiddenimports=['flask', 'flask_cors', 'numpy', 'pandas', 'scipy', 'cv2', 'networkx', 'skimage', 'skimage.io', 'skimage.io._plugins', 'skimage.io._plugins.pil_plugin', 'skimage.feature', 'skimage.filters', 'skimage.morphology', 'skimage.transform', 'skimage.util', 'PIL'],
+    hookspath=['.'],
     hooksconfig={},
-    runtime_hooks=[],
-    excludes=[],
+    runtime_hooks=['windows_hook.py'],
+    excludes=['matplotlib', 'tkinter'],
     noarchive=False,
-    optimize=0,
 )
 pyz = PYZ(a.pure)
 
@@ -35,10 +34,4 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-)
-app = BUNDLE(
-    exe,
-    name='flask_backend.app',
-    icon=None,
-    bundle_identifier=None,
 )

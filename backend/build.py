@@ -51,7 +51,11 @@ def main():
             app_path,
             '--onefile',
             '--noconsole',
+            '--noconfirm',
+            '--clean',
             '--name=flask_backend',
+            '--exclude-module=matplotlib',  # Exclude matplotlib as it's not needed
+            '--exclude-module=tkinter',     # Exclude tkinter as it's not needed
             f'--distpath={dist_path}',
             f'--workpath={build_path}',
             *add_data_args,
@@ -63,27 +67,22 @@ def main():
             '--hidden-import=cv2',
             '--hidden-import=networkx',
             '--hidden-import=skimage',
+            '--hidden-import=skimage.io',
+            '--hidden-import=skimage.io._plugins',
+            '--hidden-import=skimage.io._plugins.pil_plugin',
+            '--hidden-import=skimage.feature',
+            '--hidden-import=skimage.filters',
+            '--hidden-import=skimage.morphology',
+            '--hidden-import=skimage.transform',
+            '--hidden-import=skimage.util',
             '--hidden-import=PIL',
-            '--hidden-import=PIL._imagingtk',
-            '--hidden-import=PIL._tkinter_finder',
-            '--hidden-import=sklearn',
-            '--hidden-import=sklearn.neighbors',
-            '--hidden-import=sklearn.utils._typedefs',
-            '--hidden-import=sklearn.utils._cython_blas',
-            '--hidden-import=sklearn.neighbors._partition_nodes',
-            '--hidden-import=sklearn.tree',
-            '--hidden-import=sklearn.tree._utils',
-            '--hidden-import=sklearn.utils._typedefs',
-            '--hidden-import=sklearn.utils._cython_blas',
-            '--hidden-import=sklearn.neighbors._partition_nodes',
-            '--hidden-import=sklearn.tree',
-            '--hidden-import=sklearn.tree._utils',
         ]
         
         # Add platform-specific arguments
         if platform.system() == 'Windows':
             args.extend([
                 '--runtime-hook=windows_hook.py',
+                '--additional-hooks-dir=.',
             ])
         
         # Run PyInstaller

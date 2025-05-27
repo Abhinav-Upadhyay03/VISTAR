@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
 import os
 import logging
@@ -17,7 +17,7 @@ log_file = os.path.join(logs_dir, 'backend.log')
 logging.basicConfig(filename=log_file, level=logging.INFO)
 
 def create_app():
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder='static')
     CORS(app)
 
     @app.errorhandler(Exception)
@@ -27,6 +27,15 @@ def create_app():
 
     # Load configurations
     app.config.from_object(Config)
+
+    # Ensure upload and assets directories exist
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+    os.makedirs(app.config['ASSETS_FOLDER'], exist_ok=True)
+
+    # Custom static file serving for development
+    @app.route('/static/<path:filename>')
+    def serve_static(filename):
+        return send_from_directory(app.config['STATIC_FOLDER'], filename)
 
     # Register blueprints or routes
     with app.app_context():

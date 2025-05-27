@@ -16,7 +16,7 @@
     "start": "electron .",
     "build-backend": "cd ../backend && python build.py",
     "build-all": "npm run build-backend && npm run build",
-    "clean": "rm -rf dist electron-dist"
+    "clean": "rimraf dist electron-dist"
   },
   "dependencies": {
     "axios": "^1.7.7",
@@ -55,6 +55,12 @@
     "directories": {
       "output": "electron-dist"
     },
+    "asar": true,
+    "asarUnpack": [
+      "node_modules/**/*.node",
+      "node_modules/**/*.dll",
+      "flask_backend"
+    ],
     "publish": {
       "provider": "github",
       "owner": "Abhinav-Upadhyay03",
@@ -77,16 +83,21 @@
     ],
     "extraResources": [
       {
-        "from": "../backend/dist/flask_backend",
-        "to": "flask_backend"
+        "from": "../backend/dist/flask_backend.exe",
+        "to": "flask_backend/flask_backend.exe"
       }
     ],
     "win": {
       "target": [
-        "nsis",
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        },
         "zip"
       ],
-      "icon": "icons/icon.ico"
+      "icon": "icons/icon.ico",
+      "artifactName": "${productName}-Setup-${version}.${ext}",
+      "requestedExecutionLevel": "requireAdministrator"
     },
     "mac": {
       "target": [

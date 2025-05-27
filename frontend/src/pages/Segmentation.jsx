@@ -58,6 +58,17 @@ const Segmentation = () => {
     }
   }, [location.state]);
 
+  useEffect(() => {
+    console.log("Segmentation component mounted");
+    // Log the backend URL
+    console.log("Backend URL:", window.BACKEND_URL);
+    
+    if (!window.BACKEND_URL) {
+      console.warn("Backend URL not found, redirecting to home");
+      navigate("/");
+    }
+  }, [navigate]);
+
   // Navigation handler for progress bar
   const handleStepNavigation = (step) => {
     // Only allow navigation to steps that have been completed
@@ -68,6 +79,7 @@ const Segmentation = () => {
 
   // Handle initial image upload
   const handleImageChange = (imageDataUrl) => {
+    console.log("Image uploaded");
     setImage(imageDataUrl);
     setCroppedImageUrl(null);
     setMaskImageUrl(null);
@@ -176,7 +188,7 @@ const Segmentation = () => {
       setResultData({
         average: response.data.average,
         segmentedImage: croppedImageUrl,
-        graphImageUrl: `${backendUrl}${response.data.graphImageUrl}`,
+        graphImageUrl: response.data.graphImageUrl,
         colorMapData: response.data.colorMapData,
         stats: response.data.stats,
         measurements: currentSelectionSize

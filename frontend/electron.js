@@ -45,8 +45,17 @@ function startFlaskBackend() {
   let flaskPath;
   let args = [];
   if (app.isPackaged) {
-    flaskPath = path.join(process.resourcesPath, 'flask_backend');
+    flaskPath = path.join(process.resourcesPath, 'flask_backend', 'flask_backend.exe');
     logToFile(`Production mode: Starting backend from ${flaskPath}`);
+    
+    // Check if the file exists
+    if (!fs.existsSync(flaskPath)) {
+      const errorMsg = `Flask backend executable not found at ${flaskPath}`;
+      logToFile(errorMsg);
+      console.error(errorMsg);
+      showNotification('Backend Error', errorMsg);
+      return;
+    }
   } else {
     flaskPath = path.join(__dirname, '..', 'backend', 'run.py');
     args = [flaskPath];
@@ -54,32 +63,51 @@ function startFlaskBackend() {
   }
 
   try {
+    logToFile(`Attempting to start backend process with: ${app.isPackaged ? flaskPath : 'python3 ' + args.join(' ')}`);
+    
     flaskProcess = app.isPackaged
-      ? spawn(flaskPath)
+      ? spawn(flaskPath, [], { 
+          stdio: 'pipe',
+          env: {
+            ...process.env,
+            PATH: `${path.dirname(flaskPath)}${path.delimiter}${process.env.PATH}`
+          }
+        })
       : spawn('python3', args);
 
     flaskProcess.stdout.on('data', (data) => {
-      logToFile(`Flask stdout: ${data}`);
-      console.log(`Flask stdout: ${data}`);
+      const output = data.toString().trim();
+      logToFile(`Flask stdout: ${output}`);
+      console.log(`Flask stdout: ${output}`);
     });
 
     flaskProcess.stderr.on('data', (data) => {
-      logToFile(`Flask stderr: ${data}`);
-      console.error(`Flask stderr: ${data}`);
+      const error = data.toString().trim();
+      logToFile(`Flask stderr: ${error}`);
+      console.error(`Flask stderr: ${error}`);
+      showNotification('Backend Warning', `Flask process error: ${error}`);
     });
 
     flaskProcess.on('close', (code) => {
-      logToFile(`Flask process exited with code ${code}`);
-      console.log(`Flask process exited with code ${code}`);
+      const msg = `Flask process exited with code ${code}`;
+      logToFile(msg);
+      console.log(msg);
+      if (code !== 0) {
+        showNotification('Backend Error', msg);
+      }
     });
 
     flaskProcess.on('error', (err) => {
-      logToFile(`Flask process error: ${err}`);
-      console.error(`Flask process error: ${err}`);
+      const errorMsg = `Flask process error: ${err.message}`;
+      logToFile(errorMsg);
+      console.error(errorMsg);
+      showNotification('Backend Error', errorMsg);
     });
   } catch (err) {
-    logToFile(`Failed to start Flask backend: ${err}`);
-    console.error(`Failed to start Flask backend: ${err}`);
+    const errorMsg = `Failed to start Flask backend: ${err.message}`;
+    logToFile(errorMsg);
+    console.error(errorMsg);
+    showNotification('Backend Error', errorMsg);
   }
 }
 

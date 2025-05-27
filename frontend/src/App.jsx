@@ -68,27 +68,38 @@ const App = () => {
     let isMounted = true
     const checkBackend = async () => {
       try {
-        // Try the default port first
-        const res = await fetch(`http://127.0.0.1:${backendPort}/health`)
+        console.log(`Checking backend health on port ${backendPort}...`);
+        const res = await fetch(`http://127.0.0.1:${backendPort}/health`);
         if (res.ok && isMounted) {
-          const data = await res.json()
+          const data = await res.json();
+          console.log('Backend health check response:', data);
+          
           // Update the backend port if it's different
-          if (data.port && parseInt(data.port) !== backendPort) {
-            setBackendPort(parseInt(data.port))
+          const newPort = parseInt(data.port);
+          if (newPort && newPort !== backendPort) {
+            console.log(`Updating backend port from ${backendPort} to ${newPort}`);
+            setBackendPort(newPort);
           }
-          setBackendReady(true)
+          setBackendReady(true);
+          
+          // Set the backend URL in the window object
+          const backendUrl = `http://127.0.0.1:${newPort || backendPort}`;
+          console.log(`Setting backend URL to: ${backendUrl}`);
+          window.BACKEND_URL = backendUrl;
         } else if (isMounted) {
-          setTimeout(checkBackend, 2000)
+          console.log('Backend health check failed, retrying...');
+          setTimeout(checkBackend, 2000);
         }
-      } catch {
-        if (isMounted) setTimeout(checkBackend, 2000)
+      } catch (error) {
+        console.error('Error checking backend health:', error);
+        if (isMounted) setTimeout(checkBackend, 2000);
       }
-    }
-    checkBackend()
+    };
+    checkBackend();
     return () => {
-      isMounted = false
-    }
-  }, [backendPort])
+      isMounted = false;
+    };
+  }, [backendPort]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -110,9 +121,6 @@ const App = () => {
 
   // Show splash screen until both conditions are met
   if (!backendReady || !minTimeElapsed) return <SplashScreen waitingTime={waitingTime} />
-
-  // Set the backend URL in the window object for other components to use
-  window.BACKEND_URL = `http://127.0.0.1:${backendPort}`
 
   return (
     <Router>

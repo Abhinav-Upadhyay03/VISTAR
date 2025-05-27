@@ -4,11 +4,19 @@ import { motion } from 'framer-motion';
 import tsdlLogo from "../assets/tsdl_logo_4.png";
 import tuLogo from "../assets/TU_Logo.png";
 import logo from "../assets/vistar-logo.png"
+
 const Introduction = () => {
   const navigate = useNavigate();
 
   const handleInstructionClick = () => {
-    navigate("/select-image");
+    console.log("Get Started button clicked");
+    try {
+      console.log("Attempting to navigate to /select-image");
+      navigate("/select-image");
+      console.log("Navigation completed");
+    } catch (error) {
+      console.error("Navigation error:", error);
+    }
   };
 
   return (
