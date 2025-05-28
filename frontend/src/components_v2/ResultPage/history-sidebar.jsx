@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { History, FileText, Calendar, CheckCircle, X, Info, BarChart2, Trash2 } from "lucide-react"
+import { History, FileText, Calendar, CheckCircle, X, Info, BarChart2, Trash2, Edit2 } from "lucide-react"
 import { formatDate, formatScientific } from "../../utils/helperFunctions"
 
 const HistorySidebar = ({
@@ -12,11 +12,28 @@ const HistorySidebar = ({
   onClearAllResults,
   onToggleCompareMode,
   onToggleCompareSelection,
+  resultTitles,
+  editingTitle,
+  setEditingTitle,
+  onTitleChange,
 }) => {
   const [showCompareInfo, setShowCompareInfo] = useState(false)
 
   const toggleCompareInfo = () => {
     setShowCompareInfo(!showCompareInfo)
+  }
+
+  const handleTitleEdit = (resultId, e) => {
+    e.stopPropagation()
+    setEditingTitle(resultId)
+  }
+
+  const handleTitleSubmit = (resultId, e) => {
+    e.preventDefault()
+    const newTitle = e.target.value.trim()
+    if (newTitle) {
+      onTitleChange(resultId, newTitle)
+    }
   }
 
   return (
@@ -61,7 +78,31 @@ const HistorySidebar = ({
                   <div className="flex justify-between items-start mb-2">
                     <div className="font-medium text-gray-800 flex items-center">
                       <FileText size={16} className="mr-2 text-blue-600" />
-                      Result {index + 1}
+                      {editingTitle === result.id ? (
+                        <input
+                          type="text"
+                          defaultValue={resultTitles[result.id] || `Result ${index + 1}`}
+                          className="border border-gray-300 rounded px-1 py-0.5 text-sm w-32"
+                          onClick={(e) => e.stopPropagation()}
+                          onBlur={(e) => handleTitleSubmit(result.id, e)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              handleTitleSubmit(result.id, e)
+                            }
+                          }}
+                          autoFocus
+                        />
+                      ) : (
+                        <div className="flex items-center group">
+                          <span>{resultTitles[result.id] || `Result ${index + 1}`}</span>
+                          <button
+                            onClick={(e) => handleTitleEdit(result.id, e)}
+                            className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <Edit2 size={14} className="text-gray-400 hover:text-blue-600" />
+                          </button>
+                        </div>
+                      )}
                     </div>
                     <button
                       onClick={(e) => onRemoveResult(result.id, e)}

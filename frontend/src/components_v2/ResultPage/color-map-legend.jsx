@@ -62,7 +62,7 @@ const ColorMapLegend = ({ loading, selectedResultData, copyToClipboard, copiedVa
                 >
                   {/* Color strip on the left */}
                   <div
-                    className="w-12"
+                    className="w-8"
                     style={{
                       backgroundColor: `rgb(${item.r}, ${item.g}, ${item.b})`,
                     }}

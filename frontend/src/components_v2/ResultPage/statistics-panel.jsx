@@ -1,7 +1,6 @@
 import { useState } from "react"
 import { Info, X, Copy, CheckCircle } from "lucide-react"
 import { formatScientific } from "../../utils/helperFunctions"
-import { colorClassMap } from "../../utils/colorConstants"
 
 const StatisticsPanel = ({ selectedResultData, copyToClipboard, copiedValue, compact = false }) => {
   const [isOpen, setIsOpen] = useState(false)
@@ -39,7 +38,7 @@ const StatisticsPanel = ({ selectedResultData, copyToClipboard, copiedValue, com
 
                 <div className="space-y-4">
                   <div>
-                    <h4 className="font-semibold text-green-600 mb-1">Weighted Average</h4>
+                    <h4 className="font-semibold text-[#27272A] mb-1">Weighted Average</h4>
                     <p className="text-gray-700 text-sm">
                       A calculated value that accounts for the relative importance of different areas. Each color's
                       assigned value is weighted by its percentage area, then summed and divided by the total area.
@@ -47,7 +46,7 @@ const StatisticsPanel = ({ selectedResultData, copyToClipboard, copiedValue, com
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-blue-600 mb-1">Mean</h4>
+                    <h4 className="font-semibold text-[#27272A] mb-1">Mean</h4>
                     <p className="text-gray-700 text-sm">
                       The arithmetic average of all assigned values in the analyzed area, calculated by summing all
                       values and dividing by the total number of data points. This represents the central value in the
@@ -65,7 +64,6 @@ const StatisticsPanel = ({ selectedResultData, copyToClipboard, copiedValue, com
           <StatisticCard
             title="Weighted Average"
             value={selectedResultData.average}
-            color="green"
             fieldName="average"
             copyToClipboard={copyToClipboard}
             copiedValue={copiedValue}
@@ -76,7 +74,6 @@ const StatisticsPanel = ({ selectedResultData, copyToClipboard, copiedValue, com
           <StatisticCard
             title="Mean"
             value={selectedResultData.stats?.mean}
-            color="blue"
             fieldName="mean"
             copyToClipboard={copyToClipboard}
             copiedValue={copiedValue}
@@ -87,7 +84,6 @@ const StatisticsPanel = ({ selectedResultData, copyToClipboard, copiedValue, com
           <StatisticCard
             title="Median"
             value={selectedResultData.stats?.median}
-            color="purple"
             fieldName="median"
             copyToClipboard={copyToClipboard}
             copiedValue={copiedValue}
@@ -98,7 +94,6 @@ const StatisticsPanel = ({ selectedResultData, copyToClipboard, copiedValue, com
           <StatisticCard
             title="Mode"
             value={selectedResultData.stats?.mode}
-            color="yellow"
             fieldName="mode"
             copyToClipboard={copyToClipboard}
             copiedValue={copiedValue}
@@ -109,7 +104,6 @@ const StatisticsPanel = ({ selectedResultData, copyToClipboard, copiedValue, com
           <StatisticCard
             title="Min Assigned Value"
             value={selectedResultData.stats?.minAssignedValue}
-            color="red"
             fieldName="minAssignedValue"
             copyToClipboard={copyToClipboard}
             copiedValue={copiedValue}
@@ -120,7 +114,6 @@ const StatisticsPanel = ({ selectedResultData, copyToClipboard, copiedValue, com
           <StatisticCard
             title="Max Assigned Value"
             value={selectedResultData.stats?.maxAssignedValue}
-            color="indigo"
             fieldName="maxAssignedValue"
             copyToClipboard={copyToClipboard}
             copiedValue={copiedValue}
@@ -131,7 +124,6 @@ const StatisticsPanel = ({ selectedResultData, copyToClipboard, copiedValue, com
           <StatisticCard
             title="No. of Segments"
             value={selectedResultData.stats?.numSegments}
-            color="gray"
             fieldName="numSegments"
             copyToClipboard={copyToClipboard}
             copiedValue={copiedValue}
@@ -143,7 +135,6 @@ const StatisticsPanel = ({ selectedResultData, copyToClipboard, copiedValue, com
           <StatisticCard
             title="Total no. of Pixels"
             value={selectedResultData.stats?.totalPixel}
-            color="orange"
             fieldName="totalPixel"
             copyToClipboard={copyToClipboard}
             copiedValue={copiedValue}
@@ -159,18 +150,16 @@ const StatisticsPanel = ({ selectedResultData, copyToClipboard, copiedValue, com
 const StatisticCard = ({
   title,
   value,
-  color,
   fieldName,
   copyToClipboard,
   copiedValue,
   formatValue = formatScientific,
   compact = false,
 }) => {
-  const colorClasses = colorClassMap[color] || colorClassMap.gray;
   return (
-    <div className={compact ? `bg-gray-50 p-2 rounded shadow-sm border-l-4 ${colorClasses.border} overflow-hidden` : `bg-gray-50 p-4 rounded-lg shadow-sm border-l-4 ${colorClasses.border} overflow-hidden`}>
+    <div className={`${compact ? "bg-gray-50 p-2" : "bg-gray-50 p-4"} rounded-lg shadow-sm border-l-4 border-[#27272A] overflow-hidden`}>
       <div className="flex justify-between">
-        <h3 className={compact ? "text-xs font-semibold text-gray-700 mb-0.5" : "text-lg font-semibold text-gray-700 mb-1"}>{title}</h3>
+        <h3 className={`${compact ? "text-xs" : "text-lg"} font-semibold text-[#27272A] mb-1`}>{title}</h3>
         <div className="flex items-center">
           {copiedValue === fieldName && (
             <span className="text-xs text-green-600 mr-1 flex items-center">
@@ -180,10 +169,10 @@ const StatisticCard = ({
           {value !== undefined && (
             <button
               onClick={() => copyToClipboard(value, fieldName)}
-              className={`${compact ? "p-0.5 rounded-full" : "p-1 rounded-full"} ${colorClasses.hover}`}
+              className={`${compact ? "p-0.5" : "p-1"} rounded-full hover:bg-gray-200`}
               aria-label="Copy value"
             >
-              <Copy size={compact ? 12 : 16} className={copiedValue === fieldName ? colorClasses.text : "text-gray-500"} />
+              <Copy size={compact ? 12 : 16} className={copiedValue === fieldName ? "text-[#27272A]" : "text-gray-500"} />
             </button>
           )}
         </div>
@@ -191,7 +180,7 @@ const StatisticCard = ({
       {value !== undefined ? (
         <div className="flex items-center">
           <div
-            className={`${compact ? "text-base font-bold" : "text-2xl font-bold"} ${colorClasses.text} overflow-hidden whitespace-nowrap text-ellipsis mr-1`}
+            className={`${compact ? "text-base" : "text-2xl"} font-bold text-[#27272A] overflow-hidden whitespace-nowrap text-ellipsis mr-1`}
             data-tooltip-id="value-tooltip"
             data-tooltip-content={value}
           >
