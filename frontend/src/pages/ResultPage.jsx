@@ -173,12 +173,81 @@ const ResultPage = ({ average, segmentedImage, graphImageUrl, stats, colorMapDat
 
   const handleExportToExcel = () => {
     const workbook = XLSX.utils.book_new()
-    
-    // Create a worksheet for each result
+
+    // Only export the currently selected result
+    if (!selectedResultData) return;
+    const result = selectedResultData;
+    const resultTitle = resultTitles[result.id] || `Result ${results.indexOf(result) + 1}`;
+
+    // Prepare data for export
+    const exportData = [
+      ['Result Details'],
+      ['Title', resultTitle],
+      ['Timestamp', formatDate(result.timestamp)],
+      [''],
+      ['Statistical Analysis'],
+      ['Weighted Average', result.average],
+      ['Mean', result.stats?.mean],
+      ['Median', result.stats?.median],
+      ['Mode', result.stats?.mode],
+      ['Min Assigned Value', result.stats?.minAssignedValue],
+      ['Max Assigned Value', result.stats?.maxAssignedValue],
+      ['No. of Segments', result.stats?.numSegments],
+      ['Total no. of Pixels', result.stats?.totalPixel],
+      [''],
+      ['Color Map Data'],
+      ['RGB Values', 'Assigned Value', 'Area', 'Coverage (%)']
+    ];
+
+    // Add color map data
+    if (result.colorMapData && Array.isArray(result.colorMapData)) {
+      result.colorMapData.forEach(item => {
+        if (item) {
+          // Calculate area in units (percentage * total area)
+          const areaInUnits = (item.percentageArea / 100) * (result.measurements?.area || 0)
+          exportData.push([
+            `RGB(${item.r}, ${item.g}, ${item.b})`,
+            item.assignedValue,
+            areaInUnits,
+            item.percentageArea.toFixed(2)
+          ])
+        }
+      })
+    }
+
+    // Add measurements if available
+    if (result.measurements && typeof result.measurements === 'object') {
+      exportData.push([''])
+      exportData.push(['Measurements'])
+      Object.entries(result.measurements).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          exportData.push([key, value])
+        }
+      })
+    }
+
+    // Create worksheet
+    const worksheet = XLSX.utils.aoa_to_sheet(exportData)
+
+    // Auto-fit column widths
+    const maxWidth = exportData.reduce((max, row) => {
+      return Math.max(max, row.reduce((rowMax, cell) => {
+        return Math.max(rowMax, String(cell).length)
+      }, 0))
+    }, 0)
+
+    worksheet['!cols'] = [{ wch: maxWidth + 2 }]
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, resultTitle)
+
+    // Save the file
+    XLSX.writeFile(workbook, `${resultTitle}.xlsx`)
+  }
+
+  const handleExportAllToExcel = () => {
+    const workbook = XLSX.utils.book_new();
     results.forEach(result => {
-      const resultTitle = resultTitles[result.id] || `Result ${results.indexOf(result) + 1}`
-      
-      // Prepare data for export
+      const resultTitle = resultTitles[result.id] || `Result ${results.indexOf(result) + 1}`;
       const exportData = [
         ['Result Details'],
         ['Title', resultTitle],
@@ -196,53 +265,39 @@ const ResultPage = ({ average, segmentedImage, graphImageUrl, stats, colorMapDat
         [''],
         ['Color Map Data'],
         ['RGB Values', 'Assigned Value', 'Area', 'Coverage (%)']
-      ]
-
-      // Add color map data
+      ];
       if (result.colorMapData && Array.isArray(result.colorMapData)) {
         result.colorMapData.forEach(item => {
           if (item) {
-            // Calculate area in units (percentage * total area)
-            const areaInUnits = (item.percentageArea / 100) * (result.measurements?.area || 0)
-            
+            const areaInUnits = (item.percentageArea / 100) * (result.measurements?.area || 0);
             exportData.push([
               `RGB(${item.r}, ${item.g}, ${item.b})`,
               item.assignedValue,
               areaInUnits,
               item.percentageArea.toFixed(2)
-            ])
+            ]);
           }
-        })
+        });
       }
-
-      // Add measurements if available
       if (result.measurements && typeof result.measurements === 'object') {
-        exportData.push([''])
-        exportData.push(['Measurements'])
+        exportData.push(['']);
+        exportData.push(['Measurements']);
         Object.entries(result.measurements).forEach(([key, value]) => {
           if (value !== undefined && value !== null) {
-            exportData.push([key, value])
+            exportData.push([key, value]);
           }
-        })
+        });
       }
-
-      // Create worksheet
-      const worksheet = XLSX.utils.aoa_to_sheet(exportData)
-      
-      // Auto-fit column widths
+      const worksheet = XLSX.utils.aoa_to_sheet(exportData);
       const maxWidth = exportData.reduce((max, row) => {
         return Math.max(max, row.reduce((rowMax, cell) => {
-          return Math.max(rowMax, String(cell).length)
-        }, 0))
-      }, 0)
-      
-      worksheet['!cols'] = [{ wch: maxWidth + 2 }]
-      
-      XLSX.utils.book_append_sheet(workbook, worksheet, resultTitle)
-    })
-
-    // Save the file
-    XLSX.writeFile(workbook, 'Vistar_Analysis_Results.xlsx')
+          return Math.max(rowMax, String(cell).length);
+        }, 0));
+      }, 0);
+      worksheet['!cols'] = [{ wch: maxWidth + 2 }];
+      XLSX.utils.book_append_sheet(workbook, worksheet, resultTitle);
+    });
+    XLSX.writeFile(workbook, 'Vistar_Analysis_All_Results.xlsx');
   }
 
   const handleTitleChange = (resultId, newTitle) => {
@@ -288,9 +343,15 @@ const ResultPage = ({ average, segmentedImage, graphImageUrl, stats, colorMapDat
                 )}
                 <button
                   onClick={handleExportToExcel}
-                  className="px-4 py-2 bg-green-600 text-white font-semibold rounded-lg shadow hover:bg-green-700 transition duration-200"
+                  className="px-4 py-2 bg-green-600 text-white font-semibold shadow hover:bg-green-700 transition duration-200 rounded-[10px]"
                 >
                   Export to Excel
+                </button>
+                <button
+                  onClick={handleExportAllToExcel}
+                  className="px-4 py-2 bg-blue-600 text-white font-semibold shadow hover:bg-blue-700 transition duration-200 rounded-[10px]"
+                >
+                  Export All
                 </button>
               </div>
             </div>
