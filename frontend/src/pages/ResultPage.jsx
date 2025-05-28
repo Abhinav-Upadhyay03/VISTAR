@@ -242,7 +242,7 @@ const ResultPage = ({ average, segmentedImage, graphImageUrl, stats, colorMapDat
     })
 
     // Save the file
-    XLSX.writeFile(workbook, 'Vistar_Analysis_Results.xlsx')
+    XLSX.writeFile(workbook, `${resultTitles[selectedResult] || 'Vistar_Analysis_Results'}.xlsx`)
   }
 
   const handleTitleChange = (resultId, newTitle) => {
