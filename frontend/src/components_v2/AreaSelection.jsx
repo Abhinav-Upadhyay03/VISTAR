@@ -515,7 +515,7 @@ const AreaSelection = ({ image, deviceWidth, deviceHeight, onComplete, onBack })
       {/* Main Canvas Section */}
       <div className="lg:w-2/3 bg-white rounded-lg shadow-lg p-6">
         <div className="mb-6 border-b pb-4">
-          <h2 className="text-xl font-semibold text-gray-800">Select Area to Analyze</h2>
+          <h2 className="text-xl font-semibold text-gray-800">Crop a region of interest</h2>
         </div>
 
         {/* Mode Selection & Instructions */}
@@ -560,7 +560,7 @@ const AreaSelection = ({ image, deviceWidth, deviceHeight, onComplete, onBack })
               <ul className="list-disc list-inside text-xs space-y-1">
                 <li><span className="font-semibold">Scroll</span> to zoom in/out</li>
                 <li><span className="font-semibold">Drag</span> to pan the image</li>
-                <li><span className="font-semibold">Click</span> to add points, <span className="font-semibold">double-click</span> to complete shape</li>
+                <li><span className="font-semibold">Click</span> to add vertices, <span className="font-semibold">double-click</span> to complete shape</li>
                 <li>Use buttons below for zoom and reset controls</li>
               </ul>
             </div>
@@ -632,7 +632,7 @@ const AreaSelection = ({ image, deviceWidth, deviceHeight, onComplete, onBack })
         <div className="mb-4 flex justify-between items-center">
           <div className="text-sm text-gray-600 bg-blue-50 px-4 py-2 rounded-md border-l-4 border-blue-500">
             {mode === "interactive"
-              ? "Click to add points and create a shape. Double-click to complete."
+              ? "Click to add vertices and create a closed region. Double-click to complete the region."
               : "Enter coordinates to define your selection area."}
           </div>
           
@@ -690,7 +690,7 @@ const AreaSelection = ({ image, deviceWidth, deviceHeight, onComplete, onBack })
         <div className="flex items-center gap-2 text-sm text-blue-600 justify-center bg-blue-50 py-3 px-4 rounded-md">
           <Ruler className="h-4 w-4" />
           <span>
-            Reference object: {formatScientific(deviceWidth)} × {formatScientific(deviceHeight)} sq. meters. Zoom: {scale.toFixed(2)}x
+            Reference device/object of interest: {formatScientific(deviceWidth)} × {formatScientific(deviceHeight)} sq. meters. <br />Zoom: {scale.toFixed(2)}x
           </span>
         </div>
       </div>
@@ -739,7 +739,7 @@ const AreaSelection = ({ image, deviceWidth, deviceHeight, onComplete, onBack })
                     <rect x="2" y="4" width="20" height="16" rx="2"></rect>
                     <path d="M2 8h20"></path>
                   </svg>
-                  Measurements:
+                  Selected Region:
                 </h3>
                 <div className="bg-white p-3 rounded-md flex justify-between items-center shadow-sm border border-blue-50">
                   <span className="text-gray-700 font-medium">Area:</span>
@@ -817,15 +817,15 @@ const AreaSelection = ({ image, deviceWidth, deviceHeight, onComplete, onBack })
                 <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
                 <line x1="12" y1="22.08" x2="12" y2="12"></line>
               </svg>
-              Selected Points ({points.length})
+              Selected Vertices ({points.length})
             </h3>
             <div className="max-h-48 overflow-y-auto rounded-md border border-gray-200">
               <table className="w-full text-sm bg-white">
                 <thead className="sticky top-0">
                   <tr className="bg-gray-100">
                     <th className="text-left py-2 px-3 text-gray-600 font-medium">#</th>
-                    <th className="text-left py-2 px-3 text-gray-600 font-medium">X</th>
-                    <th className="text-left py-2 px-3 text-gray-600 font-medium">Y</th>
+                    <th className="text-left py-2 px-3 text-gray-600 font-medium">Lateral Coordinate&#40;X&#41;</th>
+                    <th className="text-left py-2 px-3 text-gray-600 font-medium">Vertical Coordinate&#40;Y&#41;</th>
                     <th className="text-left py-2 px-3 text-gray-600 font-medium">Action</th>
                   </tr>
                 </thead>

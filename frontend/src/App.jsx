@@ -18,7 +18,7 @@ const SplashScreen = ({ waitingTime }) => (
 
     {/* Main content */}
     <div className="text-center max-w-2xl mx-auto px-6">
-      <h1 className="text-4xl font-light text-slate-900 mb-6 tracking-tight">Initializing Server</h1>
+      <h1 className="text-4xl font-light text-slate-900 mb-6 tracking-tight">Initializing Tool</h1>
 
       <div className="space-y-4 mb-12">
         <p className="text-lg text-slate-600 leading-relaxed">

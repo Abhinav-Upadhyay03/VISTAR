@@ -335,7 +335,7 @@ const ResultPage = ({ average, segmentedImage, graphImageUrl, stats, colorMapDat
           <div className="max-w-7xl mx-auto">
             <div className="flex justify-between items-center mb-6">
               <h1 className="text-3xl font-bold text-gray-800">
-                {comparingResults ? "Results Comparison" : "Analysis Results"}
+                {comparingResults ? "Results Comparison" : "Results"}
               </h1>
               <div className="flex items-center gap-4">
                 {selectedResultData && !comparingResults && (

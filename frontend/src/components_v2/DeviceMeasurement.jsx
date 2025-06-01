@@ -79,13 +79,13 @@ const DeviceMeasurement = ({ image, onComplete, onCancel }) => {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       <div className="bg-white rounded-lg shadow-md p-6">
         <div className="px-0 pt-0 mb-4">
-          <h2 className="text-xl font-semibold text-gray-800">Select Reference Object</h2>
+          <h2 className="text-xl font-semibold text-gray-800">Crop Reference Device/Object of Interest</h2>
         </div>
 
         <div className="mb-4 bg-blue-50 border-blue-200 p-4 rounded-lg flex items-start">
           <Info className="h-4 w-4 text-blue-500 mt-1 mr-2" />
           <p className="text-blue-700">
-            Draw a box around the device with known dimensions for measurement calibration.
+            Draw a box around the device/object of interest for calibration of measurement.
           </p>
         </div>
 
@@ -113,7 +113,7 @@ const DeviceMeasurement = ({ image, onComplete, onCancel }) => {
         {deviceCroppedUrl ? (
           <div className="bg-white rounded-lg shadow-md overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-800">Reference Object Details</h2>
+              <h2 className="text-xl font-semibold text-gray-800">Device/Object of Interest Details</h2>
             </div>
             <div className="p-6 space-y-6">
               <div className="flex justify-center mb-4">
@@ -130,7 +130,7 @@ const DeviceMeasurement = ({ image, onComplete, onCancel }) => {
               <div className="mb-4 relative">
                 <div className="flex items-center gap-2">
                   <h4 className="text-sm font-medium text-gray-700">
-                    Value Input Format
+                    Input Format
                   </h4>
                   <button
                   tabIndex={-1}
@@ -174,7 +174,7 @@ const DeviceMeasurement = ({ image, onComplete, onCancel }) => {
               <div className="space-y-4">
                 <div className="space-y-2">
                   <label htmlFor="deviceWidth" className="block text-sm font-medium text-gray-700 flex items-center gap-2">
-                    Object Lateral:
+                    Length along lateral dimension:
                     <button
                       tabIndex={-1}
                       className="p-1 rounded-full hover:bg-gray-100 text-gray-600 transition-colors"
@@ -207,7 +207,7 @@ const DeviceMeasurement = ({ image, onComplete, onCancel }) => {
 
                 <div className="space-y-2">
                   <label htmlFor="deviceHeight" className="block text-sm font-medium text-gray-700 flex items-center gap-2">
-                    Object Vertical:
+                    Length along vertical dimension:
                     <button
                       tabIndex={-1}
                       className="p-1 rounded-full hover:bg-gray-100 text-gray-600 transition-colors"
@@ -262,8 +262,8 @@ const DeviceMeasurement = ({ image, onComplete, onCancel }) => {
         ) : (
           <div className="flex items-center justify-center h-full">
             <div className="text-center p-8 bg-gray-50 rounded-lg border border-dashed border-gray-300">
-              <h3 className="text-lg font-medium text-gray-700 mb-2">Reference Object Preview</h3>
-              <p className="text-gray-500 mb-4">Select an area in the image to see the preview here</p>
+              <h3 className="text-lg font-medium text-gray-700 mb-2">Preview</h3>
+              <p className="text-gray-500 mb-4">Crop a region in the image to see the preview here</p>
             </div>
           </div>
         )}
