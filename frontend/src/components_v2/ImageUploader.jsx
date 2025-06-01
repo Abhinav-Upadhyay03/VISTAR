@@ -54,7 +54,7 @@ const ImageUploader = ({ onImageUpload }) => {
             <ImageIcon className="h-12 w-12 text-blue-500" />
           </div>
           <h2 className="text-xl font-semibold text-gray-700 mb-2">
-            Upload an Image
+            Upload an Image(Color-mapped Profile)
           </h2>
           <p className="text-gray-500 text-center mb-6 max-w-md">
             Drag and drop your image here, or click the button below to select a
@@ -80,9 +80,9 @@ const ImageUploader = ({ onImageUpload }) => {
         <h3 className="text-lg font-medium text-gray-700 mb-2 text-center">How It Works</h3>
 
         <ul className="text-gray-600 space-y-1 pl-5 list-disc">
-          <li>Upload an image.</li>
-          <li>Select a device and provide it's dimensions.</li>
-          <li>Select an area to analyze.</li>
+          <li>Upload an image with appropriate resolution&#91;Refer to manual for details&#93;</li>
+          <li>Crop a device/object of interest and provide its dimensions.</li>
+          <li>Crop a region of interest.</li>
           <li>Set color map values to calculate segmentation results.</li>
         </ul>
       </div>

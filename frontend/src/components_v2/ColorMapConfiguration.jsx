@@ -64,13 +64,13 @@ const ColorMapConfiguration = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
             <h3 className="text-lg font-medium text-gray-700 mb-4">
-              Selected Area
+              Selected Region
             </h3>
             <div className="border rounded-lg overflow-hidden bg-gray-50 p-2">
               <div className="flex justify-center items-center">
                 <img
                   src={croppedImageUrl || "/placeholder.svg"}
-                  alt="Selected Area"
+                  alt="Selected Region"
                   className="object-contain max-h-[300px] max-w-full"
                 />
               </div>
@@ -79,7 +79,7 @@ const ColorMapConfiguration = ({
             <div className="mt-4 bg-blue-50 p-4 rounded-lg">
               <div className="flex items-center gap-2 mb-3">
                 <Ruler className="h-4 w-4 text-blue-600" />
-                <h4 className="font-medium text-blue-800">Measurements:</h4>
+                <h4 className="font-medium text-blue-800">Measurement:</h4>
               </div>
               <div className="grid grid-cols-1 gap-3 text-sm">
                 <div className="bg-white p-2 rounded-md text-center">
@@ -115,7 +115,7 @@ const ColorMapConfiguration = ({
             <div className="mb-4 relative">
               <div className="flex items-center gap-2">
                 <h4 className="text-sm font-medium text-gray-700">
-                  Value Input Format
+                  Input Format
                 </h4>
                 <button
                   onClick={toggleInfoBox}
@@ -128,6 +128,7 @@ const ColorMapConfiguration = ({
               {showInfoBox && (
                 <div className="mt-2 p-3 bg-blue-50 rounded-md text-sm text-blue-800 border border-blue-100">
                   <p className="mb-1 font-medium">Accepted formats:</p>
+                  <p>Unit of parameter is not an input field. It is assumed to be consistent for the entire color map.</p>
                   <ul className="list-disc pl-5 space-y-1">
                     <li>
                       Regular numbers: <span className="font-mono">123</span>,{" "}
@@ -157,14 +158,14 @@ const ColorMapConfiguration = ({
                   htmlFor="topValue"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Top Value:
+                  Maximum Value:
                 </label>
                 <input
                   id="topValue"
                   type="text"
                   value={topValue}
                   onChange={(e) => handleTopValueChange(e.target.value)}
-                  placeholder="Enter top value"
+                  placeholder="Enter Maximum value"
                   className={`w-full px-3 py-2 border rounded outline-none focus:ring-2 focus:ring-blue-500 ${
                     topValueError ? "border-red-500" : "border-gray-300"
                   }`}
@@ -179,14 +180,14 @@ const ColorMapConfiguration = ({
                   htmlFor="bottomValue"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Bottom Value:
+                  Minimum Value:
                 </label>
                 <input
                   id="bottomValue"
                   type="text"
                   value={bottomValue}
                   onChange={(e) => handleBottomValueChange(e.target.value)}
-                  placeholder="Enter bottom value"
+                  placeholder="Enter minimum value"
                   className={`w-full px-3 py-2 border rounded outline-none focus:ring-2 focus:ring-blue-500 ${
                     bottomValueError ? "border-red-500" : "border-gray-300"
                   }`}
@@ -206,14 +207,14 @@ const ColorMapConfiguration = ({
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200">
             <h2 className="text-lg font-semibold text-gray-800">
-              Analysis Summary
+              Selection Summary
             </h2>
           </div>
           <div className="p-6 space-y-6">
             {deviceImage && (
               <div>
                 <h3 className="text-sm font-medium text-gray-600 mb-2">
-                  Reference Object
+                  Reference Device/Object of Interest
                 </h3>
                 <div className="flex items-center gap-4 bg-gray-50 p-3 rounded-lg">
                   <div className="w-16 h-16 border rounded overflow-hidden flex-shrink-0 flex justify-center items-center">
@@ -241,13 +242,13 @@ const ColorMapConfiguration = ({
 
             <div>
               <h3 className="text-sm font-medium text-gray-600 mb-2">
-                Selected Area
+                Selected Region
               </h3>
               <div className="flex items-center gap-4 bg-gray-50 p-3 rounded-lg">
                 <div className="w-16 h-16 border rounded overflow-hidden flex-shrink-0 flex justify-center items-center">
                   <img
                     src={croppedImageUrl || "/placeholder.svg"}
-                    alt="Selected Area"
+                    alt="Selected Region"
                     className="max-w-full max-h-full object-contain"
                   />
                 </div>
@@ -284,7 +285,7 @@ const ColorMapConfiguration = ({
                   <Tooltip id="top-value-tooltip" place="top" />
                 </div>
                 <div className="bg-gray-50 p-3 rounded-lg">
-                  <p className="text-xs text-gray-500">Bottom Value:</p>
+                  <p className="text-xs text-gray-500">Minimum Value:</p>
                   <div
                     className="text-sm font-medium overflow-hidden whitespace-nowrap text-ellipsis"
                     data-tooltip-id="bottom-value-tooltip"

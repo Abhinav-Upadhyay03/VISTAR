@@ -29,13 +29,13 @@ const ColorMapLegend = ({ loading, selectedResultData, copyToClipboard, copiedVa
             Each tile displays:
             <ul className="list-disc pl-5 mt-1">
               <li>
-                <span className="font-semibold">Color sample</span> representing the detected region
+                <span className="font-semibold">Color sample</span> in the cropped region
               </li>
               <li>
                 <span className="font-semibold">Assigned value</span> in scientific notation
               </li>
               <li>
-                <span className="font-semibold">Area</span> in units and percentage coverage
+                <span className="font-semibold">Area</span> in sq.m. and percentage coverage
               </li>
             </ul>
             Hover over any tile to see detailed information including RGB values.

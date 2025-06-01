@@ -73,13 +73,13 @@ const SharedProgressHeader = ({ activeStep, completedSteps, onStepClick }) => {
               className={getStepClasses("device")}
               onClick={() => onStepClick("device")}
             >
-              Device Selection
+              Device/Object of Interest
             </span>
             <span
               className={getStepClasses("area")}
               onClick={() => onStepClick("area")}
             >
-              Area Selection
+              Region of Interest
             </span>
             <span
               className={getStepClasses("colormap")}
