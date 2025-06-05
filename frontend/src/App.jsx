@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { BrowserRouter as Router } from "react-router-dom"
 import AppRoutes from "./Routes"
+import { MathJaxContext } from "better-react-mathjax"
 
 const SplashScreen = ({ waitingTime }) => (
   <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
@@ -39,7 +40,7 @@ const SplashScreen = ({ waitingTime }) => (
           While we prepare your environment, please review our documentation.
         </p>
         <a
-          href="/manual.pdf"
+          href="/VISTAR Manual.pdf"
           download
           className="inline-flex items-center px-8 py-3 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-all duration-200 shadow-sm hover:shadow-md"
         >
@@ -57,6 +58,25 @@ const SplashScreen = ({ waitingTime }) => (
     </div>
   </div>
 )
+
+// MathJax configuration
+const mathJaxConfig = {
+  loader: { load: ["[tex]/html"] },
+  tex: {
+    packages: { "[+]": ["html"] },
+    inlineMath: [
+      ["$", "$"],
+      ["\\(", "\\)"]
+    ],
+    displayMath: [
+      ["$$", "$$"],
+      ["\\[", "\\]"]
+    ]
+  },
+  options: {
+    enableMenu: false
+  }
+}
 
 const App = () => {
   const [backendReady, setBackendReady] = useState(false)
@@ -115,9 +135,11 @@ const App = () => {
   window.BACKEND_URL = `http://127.0.0.1:${backendPort}`
 
   return (
-    <Router>
-      <AppRoutes />
-    </Router>
+    <MathJaxContext config={mathJaxConfig}>
+      <Router>
+        <AppRoutes />
+      </Router>
+    </MathJaxContext>
   )
 }
 

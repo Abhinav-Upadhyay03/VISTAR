@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { Info, X, Copy, CheckCircle } from "lucide-react"
 import { formatScientific } from "../../utils/helperFunctions"
+import { MathJax } from "better-react-mathjax"
 
 const StatisticsPanel = ({ selectedResultData, copyToClipboard, copiedValue, compact = false }) => {
   const [isOpen, setIsOpen] = useState(false)
@@ -39,19 +40,20 @@ const StatisticsPanel = ({ selectedResultData, copyToClipboard, copiedValue, com
                 <div className="space-y-4">
                   <div>
                     <h4 className="font-semibold text-[#27272A] mb-1">Weighted Average</h4>
-                    <p className="text-gray-700 text-sm">
-                      A calculated value that accounts for the relative importance of different areas. Each color's
-                      assigned value is weighted by its percentage area, then summed and divided by the total area.
-                    </p>
+                    <div className="my-2 text-center">
+                      <MathJax>{`\\[
+                        \\bar{s} = \\frac{\\sum_{i=1}^{n} S_i A_i}{\\sum_{i=1}^{n} A_i}
+                      \\]`}</MathJax>
+                    </div>
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-[#27272A] mb-1">Mean</h4>
-                    <p className="text-gray-700 text-sm">
-                      The arithmetic average of all assigned values in the analyzed area, calculated by summing all
-                      values and dividing by the total number of data points. This represents the central value in the
-                      dataset without considering the relative size of different regions.
-                    </p>
+                    <h4 className="font-semibold text-[#27272A] mb-1">Arithmetic Mean</h4>
+                    <div className="my-2 text-center">
+                      <MathJax>{`\\[
+                        \\bar{s}_{\\text{simple}} = \\frac{1}{n} \\sum_{i=1}^{n} S_i
+                      \\]`}</MathJax>
+                    </div>
                   </div>
                 </div>
               </div>

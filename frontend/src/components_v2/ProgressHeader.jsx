@@ -42,7 +42,7 @@ const SharedProgressHeader = ({ activeStep, completedSteps, onStepClick }) => {
           {/* Manual download book icon with tooltip */}
           <div className="relative group">
             <a
-              href="/manual.pdf"
+              href="/VISTAR Manual.pdf"
               download
               className="inline-flex items-center justify-center"
             >
