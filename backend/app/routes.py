@@ -209,7 +209,14 @@ def calculate_average_route():
 
                                 # Calculate area under curve
                                 area_under_curve = pixel_count * assigned_value
-                                percentage_under_curve = (area_under_curve / (total_area * graph_stats.get('max_value', 1))) * 100
+                                
+                                # Calculate percentage under curve with safety checks
+                                max_value = graph_stats.get('max_value', 1)
+                                denominator = total_area * max_value
+                                if denominator > 0 and not np.isnan(denominator) and not np.isinf(denominator):
+                                    percentage_under_curve = (area_under_curve / denominator) * 100
+                                else:
+                                    percentage_under_curve = 0
 
                                 # Use RGB as the unique key
                                 color_key = f"{r},{g},{b}"
