@@ -4,7 +4,9 @@ import os
 from skimage import io, segmentation, color, transform
 from skimage.transform import resize
 from skimage.color import rgba2rgb
-# import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')  # Use non-interactive backend
+import matplotlib.pyplot as plt
 
 def reorder_segments_by_position(segments):
     """
@@ -93,7 +95,7 @@ def felzenszwalb_segmentation(input_image_path, scale, sigma, min_size, mask_pat
 
     # Set pixels outside the mask to NaN (if float) or a unique color (if uint8)
     if image.dtype == np.uint8:
-        unique_bg_color = np.array([255, 0, 255], dtype=np.uint8)
+        unique_bg_color = np.array([0, 0, 0], dtype=np.uint8)  # Black background
         image[~mask] = unique_bg_color
     else:
         image = image.astype(np.float32)
@@ -107,26 +109,29 @@ def felzenszwalb_segmentation(input_image_path, scale, sigma, min_size, mask_pat
     segmented_image = color.label2rgb(segments, image=image, kind='avg')
 
     # Overlay segment IDs on the segmented image
-    # fig, ax = plt.subplots(figsize=(10, 8))
-    # ax.imshow(segmented_image)
+    fig, ax = plt.subplots(figsize=(10, 8))
+    ax.imshow(segmented_image)
 
-    # unique_ids = np.unique(segments)
-    # height = segments.shape[0]
+    unique_ids = np.unique(segments)
+    height = segments.shape[0]
 
-    # for seg_id in unique_ids:
-    #     coords = np.column_stack(np.where(segments == seg_id))
-    #     y_mean, x_mean = coords.mean(axis=0)
-    #     ax.text(x_mean, y_mean, str(seg_id), color='red', fontsize=8,
-    #             ha='center', va='center', bbox=dict(facecolor='white', alpha=0.5, edgecolor='none'))
+    for seg_id in unique_ids:
+        if seg_id < 0:  # Skip invalid segments
+            continue
+        coords = np.column_stack(np.where(segments == seg_id))
+        if coords.size > 0:  # Check if segment has any pixels
+            y_mean, x_mean = coords.mean(axis=0)
+            ax.text(x_mean, y_mean, str(seg_id), color='red', fontsize=8,
+                    ha='center', va='center', bbox=dict(facecolor='white', alpha=0.5, edgecolor='none'))
 
-    # ax.set_title("Segmented Image with Labels")
-    # ax.axis('off')
+    ax.set_title("Segmented Image with Labels")
+    ax.axis('off')
 
-    # # Save the figure instead of the raw image
-    # output_path = "app/static/temp_uploads/segmentedImage.png"
-    # os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    # plt.savefig(output_path, bbox_inches='tight', pad_inches=0)
-    # plt.close()
+    # Save the figure instead of the raw image
+    output_path = "app/static/temp_uploads/segmentedImage.png"
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    plt.savefig(output_path, bbox_inches='tight', pad_inches=0)
+    plt.close()
 
     return segments, segmented_image
 
@@ -146,7 +151,7 @@ def extract_segment_colors_and_areas(segments, image, mask=None):
     segment_data = {}
     segment_ids = np.unique(segments)
     total_pixels = np.sum(mask > 0) if mask is not None else image.shape[0] * image.shape[1]
-    bg_color = np.array([255, 0, 255])  # Magenta background
+    bg_color = np.array([0, 0, 0])  # Black background
     
     for seg_id in segment_ids:
         if seg_id < 0:  # Skip invalid segments if any

@@ -162,7 +162,7 @@ autoUpdater.on('update-downloaded', (info) => {
 });
 
 app.whenReady().then(() => {
-  startFlaskBackend();
+  // startFlaskBackend(); // Commented out to allow manual backend startup
   createWindow();
 });
 
