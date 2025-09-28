@@ -13,9 +13,13 @@
     "electron-dev": "cross-env NODE_ENV=development wait-on http://localhost:5173 && electron .",
     "build": "cross-env NODE_ENV=production vite build && electron-builder",
     "build:publish": "cross-env NODE_ENV=production vite build && electron-builder -p always",
+    "build:win": "cross-env NODE_ENV=production vite build && electron-builder --win --x64",
+    "build:win-portable": "cross-env NODE_ENV=production vite build && electron-builder --win --x64 --config.win.target=portable",
     "start": "electron .",
     "build-backend": "cd ../backend && python build.py",
+    "build-backend-windows": "cd ../backend && python build_windows.py",
     "build-all": "npm run build-backend && npm run build",
+    "build-all-windows": "npm run build-backend-windows && npm run build:win",
     "clean": "rimraf dist electron-dist"
   },
   "dependencies": {
@@ -85,8 +89,8 @@
     ],
     "extraResources": [
       {
-        "from": "../backend/dist/flask_backend.exe",
-        "to": "flask_backend/flask_backend.exe"
+        "from": "../backend/dist",
+        "to": "flask_backend"
       }
     ],
     "win": {
@@ -95,11 +99,19 @@
           "target": "nsis",
           "arch": ["x64"]
         },
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        },
         "zip"
       ],
       "icon": "icons/icon.ico",
       "artifactName": "${productName}-Setup-${version}.${ext}",
-      "requestedExecutionLevel": "requireAdministrator"
+      "requestedExecutionLevel": "requireAdministrator",
+      "publisherName": "Abhinav Upadhyay",
+      "verifyUpdateCodeSignature": false,
+      "signAndEditExecutable": false,
+      "signDlls": false
     },
     "mac": {
       "target": [

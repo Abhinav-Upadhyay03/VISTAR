@@ -2,10 +2,10 @@
 
 
 a = Analysis(
-    ['C:\\Users\\arnav\\VISTAR\\backend\\run.py'],
+    ['/Users/abhinav/Documents/VISTAR/backend/run.py'],
     pathex=[],
     binaries=[],
-    datas=[('C:\\Users\\arnav\\VISTAR\\backend\\requirements.txt', '.'), ('C:\\Users\\arnav\\VISTAR\\backend\\app', 'app'), ('C:\\Users\\arnav\\VISTAR\\backend\\app/static/assets/color_map_crop.jpg', 'app/static/assets')],
+    datas=[('/Users/abhinav/Documents/VISTAR/backend/requirements.txt', '.'), ('/Users/abhinav/Documents/VISTAR/backend/app', 'app'), ('/Users/abhinav/Documents/VISTAR/backend/app/static/assets/color_map_crop.jpg', 'app/static/assets')],
     hiddenimports=['flask', 'flask_cors', 'numpy', 'pandas', 'scipy', 'cv2', 'networkx', 'skimage', 'skimage.io', 'skimage.io._plugins', 'skimage.io._plugins.pil_plugin', 'skimage.feature', 'skimage.filters', 'skimage.morphology', 'skimage.transform', 'skimage.util', 'PIL'],
     hookspath=['.'],
     hooksconfig={},
@@ -34,4 +34,10 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+)
+app = BUNDLE(
+    exe,
+    name='flask_backend.app',
+    icon=None,
+    bundle_identifier=None,
 )
