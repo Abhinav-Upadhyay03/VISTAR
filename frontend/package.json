@@ -68,11 +68,7 @@
       "node_modules/**/*.dll",
       "flask_backend"
     ],
-    "publish": {
-      "provider": "github",
-      "owner": "Abhinav-Upadhyay03",
-      "repo": "VISTAR"
-    },
+    "publish": null,
     "files": [
       "dist/**/*",
       "electron.js",
