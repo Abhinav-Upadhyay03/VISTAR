@@ -77,19 +77,21 @@ jobs:
       run: npm run build
 
     - name: Create Python virtual environment
+      shell: bash
       run: |
         python -m venv venv
         if [ "${{ matrix.os }}" == "windows-latest" ]; then
-          .\venv\Scripts\activate
+          . venv/Scripts/activate
         else
           source venv/bin/activate
         fi
         python -m pip install --upgrade pip
 
     - name: Install Python dependencies
+      shell: bash
       run: |
         if [ "${{ matrix.os }}" == "windows-latest" ]; then
-          .\venv\Scripts\activate
+          . venv/Scripts/activate
         else
           source venv/bin/activate
         fi
@@ -97,23 +99,34 @@ jobs:
         pip install pyinstaller
 
     - name: Build backend executable
+      shell: bash
       run: |
         if [ "${{ matrix.os }}" == "windows-latest" ]; then
-          .\venv\Scripts\activate
+          . venv/Scripts/activate
         else
           source venv/bin/activate
         fi
         cd backend
+        echo "Building backend executable..."
+        echo "Python version: $(python --version)"
+        echo "PyInstaller version: $(pip show pyinstaller | grep Version || echo 'Not found')"
         python build.py
+        echo "Build completed. Checking output..."
+        if [ "${{ matrix.os }}" == "windows-latest" ]; then
+          ls -la dist/ || dir dist\
+        else
+          ls -la dist/
+        fi
 
     - name: Verify backend executable
       run: |
         if [ "${{ matrix.os }}" == "windows-latest" ]; then
           if [ -f "backend/dist/flask_backend.exe" ]; then
             echo "Backend executable found"
-            ls -lh backend/dist/flask_backend.exe
+            ls -lh backend/dist/flask_backend.exe || dir backend\dist\flask_backend.exe
           else
             echo "Error: Backend executable not found"
+            ls -la backend/dist/ || dir backend\dist\
             exit 1
           fi
         else
@@ -123,6 +136,7 @@ jobs:
             chmod +x backend/dist/flask_backend
           else
             echo "Error: Backend executable not found"
+            ls -la backend/dist/
             exit 1
           fi
         fi
@@ -136,7 +150,7 @@ jobs:
       run: |
         echo "Build artifacts:"
         if [ "${{ matrix.os }}" == "windows-latest" ]; then
-          ls -R frontend/electron-dist/ || echo "No electron-dist directory"
+          ls -R frontend/electron-dist/ 2>/dev/null || dir /s /b frontend\electron-dist\ 2>nul || echo "No electron-dist directory"
         else
           ls -R frontend/electron-dist/ || echo "No electron-dist directory"
         fi

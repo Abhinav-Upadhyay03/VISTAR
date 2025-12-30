@@ -123,8 +123,23 @@ def calculate_average_route():
             image_file.save(image_path)
             mask_file.save(mask_path)
 
-            # Process color map
-            color_map_path = os.path.join(ASSETS_DIR, 'color_map_crop.jpg')
+            # Process color map - use custom upload if provided, otherwise use default
+            color_map_source = request.form.get('colorMapSource', 'sentaurus')
+            if color_map_source == 'other' and 'colorMap' in request.files:
+                color_map_file = request.files['colorMap']
+                if color_map_file.filename != '':
+                    if allowed_file(color_map_file.filename):
+                        color_map_filename = secure_filename(color_map_file.filename)
+                        color_map_path = os.path.join(upload_folder, color_map_filename)
+                        color_map_file.save(color_map_path)
+                    else:
+                        return jsonify({'error': 'Invalid color map file type'}), 400
+                else:
+                    return jsonify({'error': 'No color map file provided'}), 400
+            else:
+                # Use default Sentaurus TCAD color map
+                color_map_path = os.path.join(ASSETS_DIR, 'color_map_crop.jpg')
+            
             csv_path_for_colorMap = process_color_map(color_map_path, upload_folder, top_value, bottom_value)
 
             # Wait for cropped image to be generated
