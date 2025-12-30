@@ -35,6 +35,8 @@ const Segmentation = () => {
   // Color map state
   const [topValue, setTopValue] = useState("");
   const [bottomValue, setBottomValue] = useState("");
+  const [colorMapSource, setColorMapSource] = useState("sentaurus");
+  const [customColorMapImage, setCustomColorMapImage] = useState(null);
   
   // Result data state
   const [resultData, setResultData] = useState(null);
@@ -130,6 +132,8 @@ const Segmentation = () => {
     setPixelToUnitRatio(null);
     setTopValue("");
     setBottomValue("");
+    setColorMapSource("sentaurus");
+    setCustomColorMapImage(null);
     setCurrentSelectionSize({ area: 0 });
     setResultData(null);
     setActiveStep("upload");
@@ -159,6 +163,10 @@ const Segmentation = () => {
       alert("Please crop an image first.");
       return;
     }
+    if (colorMapSource === "other" && !customColorMapImage) {
+      alert("Please upload a color map image.");
+      return;
+    }
     
     setIsLoading(true);
     try {
@@ -170,6 +178,12 @@ const Segmentation = () => {
       formData.append("mask", maskBlob, "mask.png");
       formData.append("topValue", top);
       formData.append("bottomValue", bottom);
+      formData.append("colorMapSource", colorMapSource);
+      
+      // Add custom color map file if "other" is selected
+      if (colorMapSource === "other" && customColorMapImage?.file) {
+        formData.append("colorMap", customColorMapImage.file);
+      }
       
       // Add measurement dimensions if available
       if (currentSelectionSize.area > 0) {
@@ -247,6 +261,10 @@ const Segmentation = () => {
               setActiveStep("area");
             }}
             isLoading={isLoading}
+            colorMapSource={colorMapSource}
+            onColorMapSourceChange={setColorMapSource}
+            customColorMapImage={customColorMapImage}
+            onCustomColorMapChange={setCustomColorMapImage}
           />
         ) : null;
       case "results":

@@ -1,7 +1,7 @@
-import { ArrowLeft, Calculator, Ruler, Info } from "./icons";
+import { ArrowLeft, Calculator, Ruler, Info, Upload } from "./icons";
 import colorMapImage from "../assets/color_map_crop.jpg";
 import { Tooltip } from "react-tooltip";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { convertToNumber, formatScientific, validateInput } from "../utils/helperFunctions";
 
 const ColorMapConfiguration = ({
@@ -17,11 +17,16 @@ const ColorMapConfiguration = ({
   onCalculate,
   onBack,
   isLoading,
+  colorMapSource,
+  onColorMapSourceChange,
+  customColorMapImage,
+  onCustomColorMapChange,
 }) => {
   // State for validation errors
   const [topValueError, setTopValueError] = useState("");
   const [bottomValueError, setBottomValueError] = useState("");
   const [showInfoBox, setShowInfoBox] = useState(false);
+  const fileInputRef = useRef(null);
 
   // Helper function to truncate values if they're too long
   const truncateValue = (value) => {
@@ -50,6 +55,40 @@ const ColorMapConfiguration = ({
   // Toggle info box
   const toggleInfoBox = () => {
     setShowInfoBox((prev) => !prev);
+  };
+
+  // Handle color map source change
+  const handleColorMapSourceChange = (source) => {
+    onColorMapSourceChange(source);
+    if (source === "sentaurus") {
+      onCustomColorMapChange(null);
+    }
+  };
+
+  // Handle custom color map file upload
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === "string") {
+          onCustomColorMapChange({
+            file: file,
+            dataUrl: reader.result
+          });
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Get the color map image to display
+  const getColorMapImage = () => {
+    if (colorMapSource === "sentaurus") {
+      return colorMapImage;
+    } else {
+      return customColorMapImage?.dataUrl || null;
+    }
   };
 
   return (
@@ -101,15 +140,96 @@ const ColorMapConfiguration = ({
             <h3 className="text-lg font-medium text-gray-700 mb-4">
               Color Map Reference
             </h3>
-            <div className="border rounded-lg overflow-hidden bg-gray-50 p-2 mb-6">
-              <div className="flex justify-center items-center">
-                <img
-                  src={colorMapImage || "/placeholder.svg"}
-                  alt="Color Map"
-                  className="object-contain max-h-[300px] max-w-full"
-                />
-              </div>
+            
+            {/* Color Map Source Selection */}
+            <div className="mb-4">
+              <label
+                htmlFor="colorMapSource"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Color Map Source:
+              </label>
+              <select
+                id="colorMapSource"
+                value={colorMapSource || "sentaurus"}
+                onChange={(e) => handleColorMapSourceChange(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="sentaurus">From Sentaurus TCAD</option>
+                <option value="other">From other tools</option>
+              </select>
             </div>
+
+            {/* Color Map Display/Upload */}
+            {colorMapSource === "sentaurus" ? (
+              <div className="border rounded-lg overflow-hidden bg-gray-50 p-2 mb-6">
+                <div className="flex justify-center items-center">
+                  <img
+                    src={getColorMapImage() || "/placeholder.svg"}
+                    alt="Color Map"
+                    className="object-contain max-h-[300px] max-w-full"
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="mb-6">
+                {customColorMapImage?.dataUrl ? (
+                  <div>
+                    <div className="border rounded-lg overflow-hidden bg-gray-50 p-2 mb-2">
+                      <div className="flex justify-center items-center">
+                        <img
+                          src={customColorMapImage.dataUrl}
+                          alt="Custom Color Map"
+                          className="object-contain max-h-[300px] max-w-full"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors text-sm"
+                      >
+                        <Upload className="h-4 w-4" />
+                        Change Image
+                      </button>
+                      <button
+                        onClick={() => onCustomColorMapChange(null)}
+                        className="px-3 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors text-sm"
+                      >
+                        Remove
+                      </button>
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleFileChange}
+                        accept="image/*"
+                        className="hidden"
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 bg-gray-50">
+                    <div className="flex flex-col items-center justify-center">
+                      <p className="text-sm text-gray-600 mb-3">Upload your color map image</p>
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+                      >
+                        <Upload className="h-4 w-4" />
+                        Select Color Map Reference Image
+                      </button>
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleFileChange}
+                        accept="image/*"
+                        className="hidden"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Input help info box */}
             <div className="mb-4 relative">
@@ -308,9 +428,17 @@ const ColorMapConfiguration = ({
             </button>
             <button
               onClick={onCalculate}
-              disabled={isLoading || topValueError || bottomValueError}
+              disabled={
+                isLoading || 
+                topValueError || 
+                bottomValueError || 
+                (colorMapSource === "other" && !customColorMapImage)
+              }
               className={`flex items-center gap-2 px-4 py-2 rounded-md text-white transition-colors ${
-                isLoading || topValueError || bottomValueError
+                isLoading || 
+                topValueError || 
+                bottomValueError || 
+                (colorMapSource === "other" && !customColorMapImage)
                   ? "bg-blue-400 cursor-not-allowed"
                   : "bg-blue-500 hover:bg-blue-600"
               }`}

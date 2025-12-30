@@ -66,7 +66,7 @@ const Introduction = () => {
             <img src={logo} alt="logo" className="w-1/2 h-20 mx-auto mb-12 mt-12" />
             <h2 className="text-2xl md:text-3xl font-light text-gray-700 max-w-2xl mx-auto">
               <span className="bg-gradient-to-r from-cyan-500 to-blue-600 text-transparent bg-clip-text font-semibold">
-                Visual Insight for Segmented <span className=" text-black font-semibold">TCAD</span> Analysis for Research
+                Visual Insight for <span className=" text-black font-semibold">Semiconductor TCAD</span> Analysis for Research
               </span>
             </h2>
           </motion.div>
@@ -80,15 +80,18 @@ const Introduction = () => {
           >
             <div className="bg-white/80 shadow-lg rounded-2xl p-6 max-w-lg mx-auto border border-gray-100 flex flex-col md:flex-row items-center gap-6">
               <div className="flex-1">
-                <h3 className="text-xl font-semibold mb-2 text-gray-800">Project Team</h3>
-                <div className="space-y-1">
+                <div className="space-y-2">
                   <div>
-                    <span className="font-medium text-gray-600">Developed by:</span>
-                    <p className="text-lg text-gray-900">Abhinav Upadhyay, Anurag Medhi</p>
+                    <span className="font-medium text-gray-600">Project Team Members:</span>
+                    <p className="text-lg text-gray-900">Abhinav Upadhyay, Anurag Medhi, Deepjyoti Deb</p>
                   </div>
                   <div>
-                    <span className="font-medium text-gray-600">Supervisor:</span>
-                    <p className="text-lg text-gray-900">Rupam Goswami</p>
+                    <span className="font-medium text-gray-600">Supervisor</span>
+                    <p className="text-lg text-gray-900">Dr. Rupam Goswami</p>
+                    <p className="text-sm text-gray-700 mt-1">TSDL, Department of Electronics and Communication Engineering, Tezpur University, Assam 784028, India</p>
+                  </div>
+                  <div className="mt-3">
+                    <p className="text-sm text-gray-600">Project duration: August 2024 - June 2025</p>
                   </div>
                 </div>
               </div>
