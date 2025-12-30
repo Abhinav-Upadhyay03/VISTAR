@@ -46,6 +46,10 @@ def main():
             src_path = os.path.join(backend_dir, src)
             add_data_args.append(f'--add-data={src_path}{sep}{dst}')
         
+        # Detect current platform
+        current_platform = platform.system()
+        print(f"Building for platform: {current_platform}")
+        
         # PyInstaller arguments
         args = [
             app_path,
@@ -78,17 +82,50 @@ def main():
             '--hidden-import=PIL',
         ]
         
-        # Add platform-specific arguments
-        if platform.system() == 'Windows':
+        # Add platform-specific runtime hooks
+        if current_platform == 'Windows':
             args.extend([
                 '--runtime-hook=windows_hook.py',
                 '--additional-hooks-dir=.',
             ])
+        elif current_platform == 'Darwin':
+            args.extend([
+                '--runtime-hook=mac_hook.py',
+                '--additional-hooks-dir=.',
+            ])
+        elif current_platform == 'Linux':
+            args.extend([
+                '--runtime-hook=linux_hook.py',
+                '--additional-hooks-dir=.',
+            ])
+        else:
+            print(f"Warning: Unknown platform {current_platform}, building without platform-specific hooks")
         
         # Run PyInstaller
         PyInstaller.__main__.run(args)
         
-        print("Build completed successfully!")
+        # Verify the build output
+        if current_platform == 'Windows':
+            exe_path = os.path.join(dist_path, 'flask_backend.exe')
+        else:
+            exe_path = os.path.join(dist_path, 'flask_backend')
+        
+        if os.path.exists(exe_path):
+            size = os.path.getsize(exe_path) / (1024 * 1024)  # Size in MB
+            print(f"Build completed successfully!")
+            print(f"Executable: {exe_path}")
+            print(f"Size: {size:.2f} MB")
+            
+            # On Unix-like systems, ensure executable has proper permissions
+            if current_platform != 'Windows':
+                try:
+                    os.chmod(exe_path, 0o755)
+                    print("Set executable permissions")
+                except Exception as e:
+                    print(f"Warning: Could not set executable permissions: {e}")
+        else:
+            print(f"Warning: Expected executable not found at {exe_path}")
+            print("Build may have failed. Check PyInstaller output above.")
         
     except Exception as e:
         print(f"Error during build: {str(e)}")

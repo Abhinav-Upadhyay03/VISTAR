@@ -44,14 +44,23 @@ function logToFile(message) {
 function startFlaskBackend() {
   let flaskPath;
   let args = [];
+  let command;
+  
   if (app.isPackaged) {
-    // Use the batch file approach for Windows
-    flaskPath = path.join(
-      process.resourcesPath,
-      "flask_backend",
-      "flask_backend.bat"
-    );
-    logToFile(`Production mode: Starting backend from ${flaskPath}`);
+    // Production mode: Use platform-specific executable
+    const platform = process.platform;
+    const backendDir = path.join(process.resourcesPath, "flask_backend");
+    
+    // Determine executable name based on platform
+    let executableName;
+    if (platform === "win32") {
+      executableName = "flask_backend.exe";
+    } else {
+      executableName = "flask_backend";
+    }
+    
+    flaskPath = path.join(backendDir, executableName);
+    logToFile(`Production mode: Starting backend from ${flaskPath} on ${platform}`);
 
     // Check if the file exists
     if (!fs.existsSync(flaskPath)) {
@@ -62,31 +71,77 @@ function startFlaskBackend() {
       return;
     }
   } else {
-    flaskPath = path.join(__dirname, "..", "backend", "run.py");
+    // Development mode: Use Python from venv
+    const backendDir = path.resolve(__dirname, "..", "backend");
+    flaskPath = path.join(backendDir, "run.py");
+    
+    // Use Python from venv if it exists, otherwise fall back to system Python
+    let pythonPath;
+    if (process.platform === "win32") {
+      pythonPath = path.join(backendDir, "venv", "Scripts", "python.exe");
+      command = fs.existsSync(pythonPath) ? pythonPath : "python";
+    } else {
+      // Try python3 first, then python, then python3.13
+      pythonPath = path.join(backendDir, "venv", "bin", "python3");
+      if (!fs.existsSync(pythonPath)) {
+        pythonPath = path.join(backendDir, "venv", "bin", "python");
+      }
+      if (!fs.existsSync(pythonPath)) {
+        pythonPath = path.join(backendDir, "venv", "bin", "python3.13");
+      }
+      // Use absolute path if venv Python exists
+      command = fs.existsSync(pythonPath) ? path.resolve(pythonPath) : "python3";
+    }
+    
     args = [flaskPath];
-    logToFile(`Dev mode: Starting backend with python ${flaskPath}`);
+    logToFile(`Dev mode: Starting backend with ${command} ${flaskPath}`);
+    logToFile(`Backend dir: ${backendDir}, Python path: ${command}, Exists: ${fs.existsSync(pythonPath)}`);
   }
 
   try {
     logToFile(
       `Attempting to start backend process with: ${
-        app.isPackaged ? flaskPath : "python3 " + args.join(" ")
+        app.isPackaged ? flaskPath : `${command} ${args.join(" ")}`
       }`
     );
 
     if (app.isPackaged) {
-      // For Windows, use cmd to run the batch file
-      flaskProcess = spawn("cmd", ["/c", flaskPath], {
-        stdio: "pipe",
-        env: {
-          ...process.env,
-          PATH: `${path.dirname(flaskPath)}${path.delimiter}${
-            process.env.PATH
-          }`,
-        },
-      });
+      // Production mode: Execute the bundled executable directly
+      const platform = process.platform;
+      
+      if (platform === "win32") {
+        // Windows: Execute .exe directly
+        flaskProcess = spawn(flaskPath, [], {
+          stdio: "pipe",
+          env: {
+            ...process.env,
+            PATH: `${path.dirname(flaskPath)}${path.delimiter}${
+              process.env.PATH
+            }`,
+          },
+        });
+      } else {
+        // macOS/Linux: Execute Unix executable directly
+        // Make sure it's executable
+        try {
+          fs.chmodSync(flaskPath, 0o755);
+        } catch (err) {
+          logToFile(`Warning: Could not set executable permissions: ${err.message}`);
+        }
+        
+        flaskProcess = spawn(flaskPath, [], {
+          stdio: "pipe",
+          env: {
+            ...process.env,
+            PATH: `${path.dirname(flaskPath)}${path.delimiter}${
+              process.env.PATH
+            }`,
+          },
+        });
+      }
     } else {
-      flaskProcess = spawn("python3", args);
+      // Development mode: Use Python
+      flaskProcess = spawn(command, args);
     }
 
     flaskProcess.stdout.on("data", (data) => {

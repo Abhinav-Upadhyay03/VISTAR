@@ -14,12 +14,13 @@
     "build": "cross-env NODE_ENV=production vite build && electron-builder",
     "build:publish": "cross-env NODE_ENV=production vite build && electron-builder -p always",
     "build:win": "cross-env NODE_ENV=production vite build && electron-builder --win --x64",
+    "build:mac": "cross-env NODE_ENV=production vite build && electron-builder --mac",
+    "build:linux": "cross-env NODE_ENV=production vite build && electron-builder --linux",
     "build:win-portable": "cross-env NODE_ENV=production vite build && electron-builder --win --x64 --config.win.target=portable",
     "start": "electron .",
     "build-backend": "cd ../backend && python build.py",
-    "build-backend-windows": "cd ../backend && python build_windows.py",
+    "build-electron": "cross-env NODE_ENV=production vite build && electron-builder",
     "build-all": "npm run build-backend && npm run build",
-    "build-all-windows": "npm run build-backend-windows && npm run build:win",
     "clean": "rimraf dist electron-dist"
   },
   "dependencies": {
@@ -121,8 +122,12 @@
       "icon": "icons/icon.icns"
     },
     "linux": {
-      "target": "AppImage",
-      "icon": "icons/icon.png"
+      "target": [
+        "AppImage",
+        "zip"
+      ],
+      "icon": "icons/icon.png",
+      "category": "Graphics"
     }
   }
 }

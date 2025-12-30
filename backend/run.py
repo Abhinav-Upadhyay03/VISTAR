@@ -3,8 +3,8 @@ import time
 import socket
 import logging
 import atexit
+import platform
 from app import create_app
-from windows_hook import _setup_windows_paths  # Import Windows hook
 
 # Configure logging
 logging.basicConfig(
@@ -44,8 +44,19 @@ def main():
         # Register cleanup function
         atexit.register(cleanup)
 
-        # Setup Windows-specific configurations
-        _setup_windows_paths()
+        # Setup platform-specific configurations
+        current_platform = platform.system()
+        if current_platform == 'Windows':
+            from windows_hook import _setup_windows_paths
+            _setup_windows_paths()
+        elif current_platform == 'Darwin':
+            from mac_hook import _setup_mac_paths
+            _setup_mac_paths()
+        elif current_platform == 'Linux':
+            from linux_hook import _setup_linux_paths
+            _setup_linux_paths()
+        else:
+            logger.warning(f"Unknown platform: {current_platform}, skipping platform-specific setup")
 
         app = create_app()
         logger.info(f"App created in {time.time() - start:.2f} seconds")

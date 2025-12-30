@@ -1,6 +1,18 @@
 # VISTAR Windows Build Guide
 
-This guide will help you create a Windows distributable of VISTAR from macOS.
+> **Note**: This guide is deprecated. VISTAR now uses a unified cross-platform build system.
+> 
+> **For Windows builds**, use one of these methods:
+> 1. **GitHub Actions** (Recommended): Push to main branch, builds automatically
+> 2. **Native Windows Build**: Build directly on Windows using `npm run build-all`
+> 
+> See [BUILD_GUIDE.md](BUILD_GUIDE.md) for the latest build instructions.
+
+---
+
+## Legacy Guide (Deprecated)
+
+This guide was used when building Windows from macOS using Wine. This is no longer recommended.
 
 ## Prerequisites
 

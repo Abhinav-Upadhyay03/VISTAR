@@ -32,9 +32,13 @@ Vistar is a modern image processing application built with Electron, React, and 
 
 ## Prerequisites
 
-- Node.js (v16 or higher)
-- Python 3.8 or higher
+- Node.js (v18 or higher)
+- Python 3.10 or higher
 - Git
+- Platform-specific build tools (for local builds):
+  - **Windows**: Visual Studio Build Tools or Windows SDK
+  - **macOS**: Xcode Command Line Tools (`xcode-select --install`)
+  - **Linux**: Build essentials (`sudo apt-get install build-essential`)
 
 ## Installation
 
@@ -74,34 +78,89 @@ This will start both the frontend development server and the Electron app in dev
 
 ## Building
 
-To build the application:
+VISTAR uses a unified cross-platform build system that automatically detects your platform and builds the appropriate distributables.
+
+### Automated Builds (GitHub Actions)
+
+The project uses GitHub Actions to automatically build for all platforms (Windows, macOS, Linux) on every push to the main branch. Build artifacts are available in the Actions tab.
+
+To trigger a manual build with release:
+1. Go to Actions → Build and Release
+2. Click "Run workflow"
+3. Select "Create a release: true" to create a GitHub release
+
+### Local Building
+
+#### Build for Current Platform
 
 ```bash
-# Build both frontend and backend
+# Build both backend and frontend for your current platform
+cd frontend
 npm run build-all
 
-# Build only frontend
-npm run build
-
-# Build only backend
-npm run build-backend
+# Or build separately:
+npm run build-backend  # Build backend executable
+npm run build          # Build Electron app for current platform
 ```
 
-The built application will be available in the `frontend/electron-dist` directory.
+#### Platform-Specific Builds
+
+```bash
+# Build for Windows (from any platform)
+npm run build:win
+
+# Build for macOS (from macOS only)
+npm run build:mac
+
+# Build for Linux (from Linux only)
+npm run build:linux
+```
+
+**Note**: Cross-platform builds (building Windows from macOS/Linux) require native runners. For best results, use GitHub Actions or build on the target platform.
+
+### Build Outputs
+
+After building, distributables will be in `frontend/electron-dist/`:
+
+- **Windows**: `Vistar-Setup-{version}.exe` (NSIS installer), `Vistar-{version}.exe` (portable), `Vistar-{version}.zip`
+- **macOS**: `Vistar-{version}.dmg`, `Vistar-{version}-mac.zip`
+- **Linux**: `Vistar-{version}.AppImage`, `Vistar-{version}-linux.zip`
+
+The backend executable is automatically bundled with the Electron app in the `flask_backend` resource folder.
 
 ## Project Structure
 
 ```
 Vistar/
-├── frontend/           # Electron + React frontend
-│   ├── src/           # React source code
-│   ├── public/        # Static assets
-│   └── electron.js    # Electron main process
-├── backend/           # Flask backend
-│   ├── src/          # Python source code
-│   └── dist/         # Built backend
-└── venv/             # Python virtual environment
+├── frontend/              # Electron + React frontend
+│   ├── src/              # React source code
+│   ├── public/           # Static assets
+│   ├── electron.js       # Electron main process (with platform detection)
+│   └── package.json      # Build configuration
+├── backend/              # Flask backend
+│   ├── app/              # Flask application
+│   ├── build.py          # Unified cross-platform build script
+│   ├── run.py            # Backend entry point (with platform hooks)
+│   ├── windows_hook.py   # Windows-specific initialization
+│   ├── mac_hook.py       # macOS-specific initialization
+│   ├── linux_hook.py     # Linux-specific initialization
+│   └── dist/             # Built backend executables
+├── .github/
+│   └── workflows/
+│       └── build.yml     # GitHub Actions CI/CD pipeline
+└── README.md
 ```
+
+## Architecture
+
+VISTAR is an offline desktop application that:
+
+1. **Starts a local Flask server** when the app launches
+2. **Automatically detects the platform** (Windows/macOS/Linux) at runtime
+3. **Launches the appropriate backend executable** for the current platform
+4. **Serves the React frontend** through Electron
+
+The backend is packaged as a platform-specific executable using PyInstaller, and the entire application is bundled using electron-builder.
 
 ## Contributing
 
