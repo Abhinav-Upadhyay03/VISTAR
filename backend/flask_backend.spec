@@ -2,16 +2,17 @@
 
 
 a = Analysis(
-    ['/Users/abhinav/Documents/VISTAR/backend/run.py'],
+    ['/Users/abhinavupadhyay/Documents/personal/VISTAR/backend/run.py'],
     pathex=[],
     binaries=[],
-    datas=[('/Users/abhinav/Documents/VISTAR/backend/requirements.txt', '.'), ('/Users/abhinav/Documents/VISTAR/backend/app', 'app'), ('/Users/abhinav/Documents/VISTAR/backend/app/static/assets/color_map_crop.jpg', 'app/static/assets')],
+    datas=[('/Users/abhinavupadhyay/Documents/personal/VISTAR/backend/requirements.txt', '.'), ('/Users/abhinavupadhyay/Documents/personal/VISTAR/backend/app', 'app'), ('/Users/abhinavupadhyay/Documents/personal/VISTAR/backend/app/static/assets/color_map_crop.jpg', 'app/static/assets')],
     hiddenimports=['flask', 'flask_cors', 'numpy', 'pandas', 'scipy', 'cv2', 'networkx', 'skimage', 'skimage.io', 'skimage.io._plugins', 'skimage.io._plugins.pil_plugin', 'skimage.feature', 'skimage.filters', 'skimage.morphology', 'skimage.transform', 'skimage.util', 'PIL'],
     hookspath=['.'],
     hooksconfig={},
-    runtime_hooks=['windows_hook.py'],
+    runtime_hooks=['mac_hook.py'],
     excludes=['matplotlib', 'tkinter'],
     noarchive=False,
+    optimize=0,
 )
 pyz = PYZ(a.pure)
 

@@ -18,7 +18,7 @@
     "build:linux": "cross-env NODE_ENV=production vite build && electron-builder --linux",
     "build:win-portable": "cross-env NODE_ENV=production vite build && electron-builder --win --x64 --config.win.target=portable",
     "start": "electron .",
-    "build-backend": "cd ../backend && python build.py",
+    "build-backend": "cd ../backend && source venv/bin/activate && python3 build.py",
     "build-electron": "cross-env NODE_ENV=production vite build && electron-builder",
     "build-all": "npm run build-backend && npm run build",
     "clean": "rimraf dist electron-dist"
