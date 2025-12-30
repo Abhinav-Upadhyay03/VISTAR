@@ -77,83 +77,101 @@ jobs:
       run: npm run build
 
     - name: Create Python virtual environment
-      shell: bash
       run: |
         python -m venv venv
-        if [ "${{ matrix.os }}" == "windows-latest" ]; then
-          . venv/Scripts/activate
-        else
-          source venv/bin/activate
-        fi
         python -m pip install --upgrade pip
 
-    - name: Install Python dependencies
-      shell: bash
+    - name: Install Python dependencies (Windows)
+      if: matrix.os == 'windows-latest'
       run: |
-        if [ "${{ matrix.os }}" == "windows-latest" ]; then
-          . venv/Scripts/activate
-        else
-          source venv/bin/activate
-        fi
+        .\venv\Scripts\python.exe -m pip install -r backend/requirements.txt
+        .\venv\Scripts\python.exe -m pip install pyinstaller
+      shell: pwsh
+
+    - name: Install Python dependencies (Unix)
+      if: matrix.os != 'windows-latest'
+      run: |
+        source venv/bin/activate
         pip install -r backend/requirements.txt
         pip install pyinstaller
-
-    - name: Build backend executable
       shell: bash
+
+    - name: Build backend executable (Windows)
+      if: matrix.os == 'windows-latest'
       run: |
-        if [ "${{ matrix.os }}" == "windows-latest" ]; then
-          . venv/Scripts/activate
-        else
-          source venv/bin/activate
-        fi
+        cd backend
+        Write-Host "Building backend executable..."
+        ..\venv\Scripts\python.exe --version
+        ..\venv\Scripts\python.exe -m pip show pyinstaller
+        ..\venv\Scripts\python.exe build.py
+        Write-Host "Build completed. Checking output..."
+        if (Test-Path "dist") {
+          Get-ChildItem "dist" | Format-Table Name, Length
+        }
+      shell: pwsh
+
+    - name: Build backend executable (Unix)
+      if: matrix.os != 'windows-latest'
+      run: |
+        source venv/bin/activate
         cd backend
         echo "Building backend executable..."
-        echo "Python version: $(python --version)"
-        echo "PyInstaller version: $(pip show pyinstaller | grep Version || echo 'Not found')"
+        python --version
+        pip show pyinstaller || echo "PyInstaller not found"
         python build.py
         echo "Build completed. Checking output..."
-        if [ "${{ matrix.os }}" == "windows-latest" ]; then
-          ls -la dist/ || dir dist\
-        else
-          ls -la dist/
-        fi
+        ls -la dist/
+      shell: bash
 
-    - name: Verify backend executable
+    - name: Verify backend executable (Windows)
+      if: matrix.os == 'windows-latest'
       run: |
-        if [ "${{ matrix.os }}" == "windows-latest" ]; then
-          if [ -f "backend/dist/flask_backend.exe" ]; then
-            echo "Backend executable found"
-            ls -lh backend/dist/flask_backend.exe || dir backend\dist\flask_backend.exe
-          else
-            echo "Error: Backend executable not found"
-            ls -la backend/dist/ || dir backend\dist\
-            exit 1
-          fi
+        if (Test-Path "backend\dist\flask_backend.exe") {
+          Write-Host "Backend executable found"
+          Get-Item "backend\dist\flask_backend.exe" | Format-List
+        } else {
+          Write-Host "Error: Backend executable not found"
+          Get-ChildItem "backend\dist\" -ErrorAction SilentlyContinue
+          exit 1
+        }
+      shell: pwsh
+
+    - name: Verify backend executable (Unix)
+      if: matrix.os != 'windows-latest'
+      run: |
+        if [ -f "backend/dist/flask_backend" ]; then
+          echo "Backend executable found"
+          ls -lh backend/dist/flask_backend
+          chmod +x backend/dist/flask_backend
         else
-          if [ -f "backend/dist/flask_backend" ]; then
-            echo "Backend executable found"
-            ls -lh backend/dist/flask_backend
-            chmod +x backend/dist/flask_backend
-          else
-            echo "Error: Backend executable not found"
-            ls -la backend/dist/
-            exit 1
-          fi
+          echo "Error: Backend executable not found"
+          ls -la backend/dist/
+          exit 1
         fi
+      shell: bash
 
     - name: Build Electron app
       working-directory: ./frontend
       run: |
         npm run build -- ${{ matrix.electron_target }} --publish never
 
-    - name: List build artifacts
+    - name: List build artifacts (Windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        Write-Host "Build artifacts:"
+        if (Test-Path "frontend\electron-dist") {
+          Get-ChildItem "frontend\electron-dist" -Recurse | Format-Table Name, Length
+        } else {
+          Write-Host "No electron-dist directory"
+        }
+      shell: pwsh
+
+    - name: List build artifacts (Unix)
+      if: matrix.os != 'windows-latest'
       run: |
         echo "Build artifacts:"
-        if [ "${{ matrix.os }}" == "windows-latest" ]; then
-          ls -R frontend/electron-dist/ 2>/dev/null || dir /s /b frontend\electron-dist\ 2>nul || echo "No electron-dist directory"
-        else
-          ls -R frontend/electron-dist/ || echo "No electron-dist directory"
-        fi
+        ls -R frontend/electron-dist/ || echo "No electron-dist directory"
+      shell: bash
 
     - name: Upload Windows artifacts
       if: matrix.os == 'windows-latest'
