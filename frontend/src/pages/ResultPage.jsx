@@ -8,7 +8,7 @@ import ColorMapLegend from "../components_v2/ResultPage/color-map-legend"
 import { formatDate } from "../utils/helperFunctions"
 import * as XLSX from 'xlsx'
 
-const ResultPage = ({ average, segmentedImage, graphImageUrl, stats, colorMapData, measurements, onBack }) => {
+const ResultPage = ({ average, segmentedImage, graphImageUrl, stats, colorMapData, measurements, colorMapImage, colorMapSource, onBack }) => {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(!colorMapData)
   const [selectedResult, setSelectedResult] = useState(null)
@@ -34,6 +34,8 @@ const ResultPage = ({ average, segmentedImage, graphImageUrl, stats, colorMapDat
         stats,
         colorMapData,
         measurements,
+        colorMapImage,
+        colorMapSource,
       }
 
       // Load existing results from localStorage
@@ -372,7 +374,8 @@ const ResultPage = ({ average, segmentedImage, graphImageUrl, stats, colorMapDat
               <>
                 {/* Main content without card wrapper */}
                 <div className="mb-8">
-                  <div className="">
+                  {/* Images Section - Side by Side */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Input Image Section */}
                     <div className="bg-white rounded-lg shadow-md overflow-hidden">
                       <div className="bg-green-600 text-white px-4 py-3">
@@ -382,12 +385,32 @@ const ResultPage = ({ average, segmentedImage, graphImageUrl, stats, colorMapDat
                         <div className="border border-gray-200 rounded-lg overflow-hidden bg-gray-50">
                           {selectedResultData.segmentedImage ? (
                             <img
-                              src={selectedResultData.segmentedImage || "/placeholder.svg" || "/placeholder.svg"}
+                              src={selectedResultData.segmentedImage || "/placeholder.svg"}
                               alt="Segmented"
                               className="w-full max-h-96 object-contain"
                             />
                           ) : (
                             <div className="text-center py-12 text-gray-500">No image available</div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Color Map Reference Section */}
+                    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                      <div className="bg-blue-600 text-white px-4 py-3">
+                        <h2 className="text-xl font-semibold">Color Map Reference</h2>
+                      </div>
+                      <div className="p-4">
+                        <div className="border border-gray-200 rounded-lg overflow-hidden bg-gray-50">
+                          {selectedResultData.colorMapImage ? (
+                            <img
+                              src={selectedResultData.colorMapImage}
+                              alt="Color Map Reference"
+                              className="w-full max-h-96 object-contain"
+                            />
+                          ) : (
+                            <div className="text-center py-12 text-gray-500">No color map available</div>
                           )}
                         </div>
                       </div>

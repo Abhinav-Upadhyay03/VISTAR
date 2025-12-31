@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify, current_app, url_for
 import os
+import logging
 from werkzeug.utils import secure_filename
 import cv2
 import numpy as np
@@ -130,8 +131,19 @@ def calculate_average_route():
                 if color_map_file.filename != '':
                     if allowed_file(color_map_file.filename):
                         color_map_filename = secure_filename(color_map_file.filename)
-                        color_map_path = os.path.join(upload_folder, color_map_filename)
+                        # Normalize path for Windows compatibility (handles backslashes properly)
+                        color_map_path = os.path.normpath(os.path.join(upload_folder, color_map_filename))
                         color_map_file.save(color_map_path)
+                        
+                        # Wait for file to be fully written (Windows may need time to flush)
+                        if not wait_for_file(color_map_path, timeout=5):
+                            return jsonify({'error': f'Color map file not accessible: {color_map_path}'}), 500
+                        
+                        # Verify file is readable and not empty
+                        if not os.path.exists(color_map_path):
+                            return jsonify({'error': f'Color map file not found: {color_map_path}'}), 500
+                        if os.path.getsize(color_map_path) == 0:
+                            return jsonify({'error': 'Color map file is empty'}), 500
                     else:
                         return jsonify({'error': 'Invalid color map file type'}), 400
                 else:
@@ -140,7 +152,15 @@ def calculate_average_route():
                 # Use default Sentaurus TCAD color map
                 color_map_path = os.path.join(ASSETS_DIR, 'color_map_crop.jpg')
             
-            csv_path_for_colorMap = process_color_map(color_map_path, upload_folder, top_value, bottom_value)
+            # Process color map with error handling
+            try:
+                csv_path_for_colorMap = process_color_map(color_map_path, upload_folder, top_value, bottom_value)
+            except Exception as e:
+                import traceback
+                error_msg = f"Error processing color map: {str(e)}\n{traceback.format_exc()}"
+                print(error_msg)
+                logging.error(error_msg)
+                return jsonify({'error': f'Failed to process color map: {str(e)}'}), 500
 
             # Wait for cropped image to be generated
             cropped_image_path = os.path.join(TEMP_UPLOADS_DIR, 'cropped-image.png')

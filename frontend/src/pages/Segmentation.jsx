@@ -9,6 +9,7 @@ import ColorMapConfiguration from "../components_v2/ColorMapConfiguration";
 import SharedProgressHeader from "../components_v2/ProgressHeader";
 import ResultPage from "./ResultPage";
 import { convertToNumber } from "../utils/helperFunctions";
+import colorMapImageDefault from "../assets/color_map_crop.jpg";
 
 const Segmentation = () => {
   const navigate = useNavigate();
@@ -198,6 +199,16 @@ const Segmentation = () => {
         },
       });
 
+      // Determine color map image URL
+      let colorMapImageUrl = null;
+      if (colorMapSource === "sentaurus") {
+        // Use default Sentaurus color map
+        colorMapImageUrl = colorMapImageDefault;
+      } else if (colorMapSource === "other" && customColorMapImage?.dataUrl) {
+        // Use custom uploaded color map
+        colorMapImageUrl = customColorMapImage.dataUrl;
+      }
+
       // Save result data to state instead of navigating
       setResultData({
         average: response.data.average,
@@ -205,7 +216,9 @@ const Segmentation = () => {
         graphImageUrl: response.data.graphImageUrl,
         colorMapData: response.data.colorMapData,
         stats: response.data.stats,
-        measurements: currentSelectionSize
+        measurements: currentSelectionSize,
+        colorMapImage: colorMapImageUrl,
+        colorMapSource: colorMapSource
       });
 
       // Update completedSteps to include results
@@ -276,6 +289,8 @@ const Segmentation = () => {
             colorMapData={resultData.colorMapData}
             stats={resultData.stats}
             measurements={resultData.measurements}
+            colorMapImage={resultData.colorMapImage}
+            colorMapSource={resultData.colorMapSource}
             onBack={() => {
               setActiveStep("colormap");
             }}

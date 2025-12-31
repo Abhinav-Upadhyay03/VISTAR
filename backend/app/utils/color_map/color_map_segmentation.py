@@ -14,6 +14,10 @@ def determine_distribution_type(min_value, max_value):
     Returns:
         str: Distribution type ('linear', 'log', or 'symlog')
     """
+    # If either value is zero, use linear distribution to avoid log10(0) issues
+    if min_value == 0 or max_value == 0:
+        return 'linear'
+    
     if min_value <= 0 and max_value >= 0:
         # If range crosses zero, use symlog
         return 'symlog'
@@ -37,6 +41,14 @@ def generate_distributed_values(min_value, max_value, num_segments, distribution
     Returns:
         numpy.ndarray: Array of distributed values
     """
+    # Handle zero values explicitly - use linear distribution to avoid log10(0) issues
+    if min_value == 0 and max_value == 0:
+        # Edge case: both are zero, return all zeros
+        return np.zeros(num_segments)
+    elif min_value == 0 or max_value == 0:
+        # One value is zero, use linear distribution
+        return np.linspace(max_value, min_value, num_segments)
+    
     if distribution_type == 'linear':
         return np.linspace(max_value, min_value, num_segments)
     
@@ -51,14 +63,15 @@ def generate_distributed_values(min_value, max_value, num_segments, distribution
     
     elif distribution_type == 'symlog':
         # For symlog, handle both positive and negative values
-        if min_value >= 0:
+        # Note: We've already handled zero cases above, so min_value != 0 and max_value != 0 here
+        if min_value > 0:
             # All positive values, use log
             return np.logspace(np.log10(max_value), np.log10(min_value), num_segments)
-        elif max_value <= 0:
+        elif max_value < 0:
             # All negative values, use negative log
             return -np.logspace(np.log10(abs(min_value)), np.log10(abs(max_value)), num_segments)
         else:
-            # Mixed positive and negative values
+            # Mixed positive and negative values (but neither is zero)
             # Create symlog distribution
             pos_values = max_value
             neg_values = min_value
