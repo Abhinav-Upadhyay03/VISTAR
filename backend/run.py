@@ -25,7 +25,7 @@ def cleanup():
     except Exception as e:
         logger.error(f"Error during cleanup: {e}")
 
-def find_available_port(start_port=5001, max_attempts=10):
+def find_available_port(start_port=5015, max_attempts=10):
     """Find an available port starting from start_port"""
     for port in range(start_port, start_port + max_attempts):
         try:

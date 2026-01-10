@@ -81,7 +81,7 @@ const mathJaxConfig = {
 const App = () => {
   const [backendReady, setBackendReady] = useState(false)
   const [minTimeElapsed, setMinTimeElapsed] = useState(false)
-  const [backendPort, setBackendPort] = useState(5001)
+  const [backendPort, setBackendPort] = useState(5015)
   const [waitingTime, setWaitingTime] = useState(0)
 
   useEffect(() => {

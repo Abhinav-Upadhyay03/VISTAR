@@ -1,9 +1,15 @@
 import numpy as np  
 from skimage import io 
-from skimage.transform import resize  
+from skimage.transform import resize
+from skimage.color import rgba2rgb
 
 def grid_segmentation(input_image_path, num_rows=35, num_cols=1):
     image = io.imread(input_image_path)
+    
+    # Convert RGBA to RGB if necessary
+    if image.ndim == 3 and image.shape[2] == 4:
+        image = rgba2rgb(image)
+    
     image = resize(image, (512, 512))  # Resize to 512x512
 
     img_height, img_width, _ = image.shape
